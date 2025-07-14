@@ -14,7 +14,7 @@ datasource db {
 }
 
 model Area {
-  id         String       @id @default(cuid())
+  id         Int          @id @default(autoincrement())
   name       String
   devices    AreaDevice[]
   energyLogs EnergyLog[]
@@ -29,7 +29,7 @@ enum DeviceType {
 }
 
 model Device {
-  id          String       @id @default(cuid())
+  id          Int          @id @default(autoincrement())
   name        String
   type        DeviceType
   powerWatts  Float // Consumo en watts por hora
@@ -40,19 +40,20 @@ model Device {
 }
 
 model AreaDevice {
-  id       String @id @default(cuid())
+  id       Int    @id @default(autoincrement())
+  name     String
   area     Area   @relation(fields: [areaId], references: [id])
-  areaId   String
+  areaId   Int
   device   Device @relation(fields: [deviceId], references: [id])
-  deviceId String
+  deviceId Int
 }
 
 model EnergyLog {
-  id        String    @id @default(cuid())
+  id        Int       @id @default(autoincrement())
   device    Device    @relation(fields: [deviceId], references: [id])
-  deviceId  String
+  deviceId  Int
   area      Area      @relation(fields: [areaId], references: [id])
-  areaId    String
+  areaId    Int
   startedAt DateTime
   endedAt   DateTime? // null mientras esté encendido
   totalWh   Float? // Consumo en Wh (calculado al apagarse)
@@ -65,7 +66,7 @@ enum Role {
 }
 
 model User {
-  id         String      @id @default(cuid())
+  id         Int         @id @default(autoincrement())
   fullName   String
   email      String      @unique
   password   String
@@ -82,11 +83,11 @@ enum AccessType {
 }
 
 model AccessLog {
-  id        String     @id @default(cuid())
+  id        Int        @id @default(autoincrement())
   user      User       @relation(fields: [userId], references: [id])
-  userId    String
+  userId    Int
   area      Area       @relation(fields: [areaId], references: [id])
-  areaId    String
+  areaId    Int
   type      AccessType
   timestamp DateTime
 }

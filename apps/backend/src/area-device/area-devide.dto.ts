@@ -1,11 +1,14 @@
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, } from 'class-validator';
 
 export class AssignDeviceDto {
     @IsString()
-    @IsNotEmpty()
-    areaId: string;
+    @IsNotEmpty({ message: 'Este campo es requerido.' })
+    name: string;
+    @IsNumber()
+    @IsNotEmpty({ message: 'Este campo es requerido.' })
+    areaId: number;
 
-    @IsString()
-    @IsNotEmpty()
-    deviceId: string;
+    @IsNumber()
+    @IsNotEmpty({ message: 'Este campo es requerido.' })
+    deviceId: number;
 }

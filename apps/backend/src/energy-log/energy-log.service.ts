@@ -6,7 +6,7 @@ export class EnergyLogService {
 
     constructor(private prisma: PrismaService) { }
 
-    async turnOn(deviceId: string, areaId: string) {
+    async turnOn(deviceId: number, areaId: number) {
         // Asegúrate de que no está ya encendido
         const active = await this.prisma.energyLog.findFirst({
             where: { deviceId, endedAt: null },
@@ -23,7 +23,7 @@ export class EnergyLogService {
         });
     }
 
-    async turnOff(deviceId: string) {
+    async turnOff(deviceId: number) {
         const active = await this.prisma.energyLog.findFirst({
             where: { deviceId, endedAt: null },
             include: { device: true },

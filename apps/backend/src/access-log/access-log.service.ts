@@ -6,7 +6,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class AccessLogService {
     constructor(private prisma: PrismaService) { }
 
-    logAccess(userId: string, areaId: string, type: AccessType) {
+    logAccess(userId: number, areaId: number, type: AccessType) {
         return this.prisma.accessLog.create({
             data: {
                 userId,
@@ -17,7 +17,7 @@ export class AccessLogService {
         });
     }
 
-    findByArea(areaId: string) {
+    findByArea(areaId: number) {
         return this.prisma.accessLog.findMany({
             where: { areaId },
             include: { user: true },
