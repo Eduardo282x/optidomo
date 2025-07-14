@@ -1,16 +1,16 @@
 export interface UserBody {
-    username: string;
-    name: string;
-    lastName: string;
+    fullName: string;
+    email: string;
     role: Role;
 }
 
 export interface IUser {
     id: number,
-    name: string;
-    lastName: string;
-    username: string;
+    fullName: string;
+    email: string;
+    password: string;
     role: Role;
+    createdAt: Date;
 }
 
 export interface GroupUser {
@@ -18,4 +18,4 @@ export interface GroupUser {
     users: IUser[]
 }
 
-export type Role = 'ADMIN' | 'GERENTE' | 'RECEPCIONISTA'
+export type Role = 'ADMIN' | 'TEACHER' | 'STUDENT' | ''

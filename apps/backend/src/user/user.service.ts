@@ -13,6 +13,16 @@ export class UserService {
     async getUsers() {
         return await this.prismaService.user.findMany();
     }
+    async getUsersSystem() {
+        return await this.prismaService.user.findMany({
+            where: { role: { not: 'STUDENT' } }
+        });
+    }
+    async getStudents() {
+        return await this.prismaService.user.findMany({
+            where: { role: 'STUDENT' }
+        });
+    }
 
     async createUser(user: CreateUserDto) {
         try {
@@ -20,7 +30,7 @@ export class UserService {
                 data: {
                     fullName: user.fullName,
                     email: user.email,
-                    password: user.password,
+                    password: '1234',
                     role: user.role,
                 }
             });
@@ -38,7 +48,6 @@ export class UserService {
                 data: {
                     fullName: user.fullName,
                     email: user.email,
-                    password: user.password,
                     role: user.role,
                 },
                 where: { id }

@@ -1,11 +1,25 @@
 import { deleteDataApi, getDataApi, postDataApi, putDataApi } from "../api";
 import { UserBody } from "./user.interface";
 
-const userURL = '/users';
+const userURL = '/user';
 
 export const getUsers = async () => {
     try {
         return await getDataApi(userURL);
+    } catch (err) {
+        return err;
+    }
+}
+export const getUsersNormal = async () => {
+    try {
+        return await getDataApi(`${userURL}/normal`);
+    } catch (err) {
+        return err;
+    }
+}
+export const getStudents = async () => {
+    try {
+        return await getDataApi(`${userURL}/students`);
     } catch (err) {
         return err;
     }

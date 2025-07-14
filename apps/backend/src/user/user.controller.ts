@@ -13,6 +13,14 @@ export class UserController {
     async getUsers() {
         return await this.userService.getUsers();
     }
+    @Get('/normal')
+    async getUsersSystem() {
+        return await this.userService.getUsersSystem();
+    }
+    @Get('/students')
+    async getStudents() {
+        return await this.userService.getStudents();
+    }
     @Post()
     async createUser(@Body() user: CreateUserDto) {
         return await this.userService.createUser(user);

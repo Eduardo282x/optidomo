@@ -172,7 +172,6 @@ export const Devices = () => {
                         </div>
                     </CardTitle>
 
-
                 </CardHeader>
                 <CardContent>
                     <Table>
