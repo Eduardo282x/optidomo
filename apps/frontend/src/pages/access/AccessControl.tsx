@@ -3,84 +3,105 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { LogIn, LogOut } from "lucide-react"
-
-interface AccessEvent {
-    id: string
-    name: string
-    role: string
-    area: string
-    type: "Entrada" | "Salida"
-    time: string
-}
+import { useEffect, useState } from "react"
+import { getAccessLog } from "@/services/accessControl/access-control.service"
+import { IAccessLog } from "@/services/accessControl/access-control.interface"
+import { IArea } from "@/services/area/area.interface"
+import { Role } from "@/services/user/user.interface"
+import { formatDateTime } from "@/lib/formatters"
 
 export function AccessControl() {
-    const accessEvents: AccessEvent[] = [
-        { id: "1", name: "Maria Rodriguez", role: "Profesor", area: "Entrada", type: "Entrada", time: "08:15 AM" },
-        { id: "2", name: "John Smith", role: "Estudiante", area: "Entrada", type: "Entrada", time: "08:20 AM" },
-        { id: "3", name: "Sarah Johnson", role: "Estudiante", area: "Salon 1", type: "Entrada", time: "08:25 AM" },
-        { id: "4", name: "David Lee", role: "Estudiante", area: "Salon 2", type: "Entrada", time: "08:30 AM" },
-        { id: "5", name: "Emma Wilson", role: "Estudiante", area: "Comedor", type: "Entrada", time: "12:00 PM" },
-        { id: "6", name: "Emma Wilson", role: "Estudiante", area: "Comedor", type: "Salida", time: "12:45 PM" },
-        { id: "7", name: "Sarah Johnson", role: "Estudiante", area: "Salon 1", type: "Salida", time: "02:30 PM" },
-        { id: "8", name: "David Lee", role: "Estudiante", area: "Salon 2", type: "Salida", time: "03:00 PM" },
-        { id: "9", name: "John Smith", role: "Estudiante", area: "Entrada", type: "Salida", time: "03:15 PM" },
-        { id: "10", name: "Maria Rodriguez", role: "Profesor", area: "Entrada", type: "Salida", time: "04:00 PM" },
-    ]
+    const [accessEvents, setAccessEvents] = useState<IAccessLog[]>([])
+    const [areas, setAreas] = useState<IArea[]>([]);
+    const [areaSelected, setAreaSelected] = useState<IArea | null>(null);
 
-    const areas = ["Todos", "Entrada", "Salon 1", "Salon 2", "Comedor"]
+    useEffect(() => {
+        getAccessControlApi();
+    }, [])
+
+    const getAccessControlApi = async () => {
+        try {
+            const response: IAccessLog[] = await getAccessLog();
+            setAccessEvents(response);
+            const getAreas = response.map(item => item.area);
+            const areasParse = getAreas.filter((o, index, arr) => arr.findIndex(item => JSON.stringify(item) === JSON.stringify(o)) === index);
+            const addAreas: IArea[] = [{ id: 0, name: 'Todas' }, ...areasParse];
+            setAreas(addAreas)
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    const getRoleName = (role: Role) => {
+        switch (role) {
+            case "ADMIN":
+                return "Administrador"
+            case "TEACHER":
+                return "Profesor"
+            default:
+                return "Estudiante"
+        }
+    }
+
+    const setArea = (areaId: number) => {
+        if (areaId == 0) return setAreaSelected(null)
+        const findArea: IArea = areas.find(item => item.id == Number(areaId)) as IArea;
+        setAreaSelected(findArea);
+    }
+
 
     return (
         <div className="space-y-6">
             <h2 className="text-2xl font-bold text-black">Control de Acceso</h2>
 
-            <Tabs defaultValue="Todos">
+            <Tabs defaultValue="0" onValueChange={(value) => setArea(Number(value))}>
                 <TabsList className="mb-4">
                     {areas.map((area) => (
-                        <TabsTrigger key={area} value={area}>
-                            {area}
+                        <TabsTrigger className="cursor-pointer" key={area.id} value={area.id.toString()}>
+                            {area.name}
                         </TabsTrigger>
                     ))}
                 </TabsList>
 
                 {areas.map((area) => (
-                    <TabsContent key={area} value={area}>
+                    <TabsContent key={area.id} value={area.id.toString()}>
                         <Card>
                             <CardHeader>
-                                <CardTitle>{area === "Todos" ? "Control de accesos" : `${area} Access Events`}</CardTitle>
+                                <CardTitle>{areaSelected ? `${areaSelected.name} - Control de acceso` : "Control de accesos"}</CardTitle>
                                 <CardDescription>
-                                    Tiempo real de entradas y salidas {area !== "Todos" ? `in the ${area.toLowerCase()}` : ""}.
+                                    Tiempo real de entradas y salidas {areaSelected ? `en el area ${area.name}` : ""}.
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-4 h-80 overflow-y-auto">
                                     {accessEvents
-                                        .filter((event) => area === "Todos" || event.area === area)
+                                        .filter((event) => !areaSelected || event.area.id === area.id)
                                         .map((event) => (
                                             <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg">
                                                 <div className="flex items-center space-x-4">
                                                     <Avatar>
                                                         <AvatarFallback>
-                                                            {event.name
+                                                            {event.user.fullName
                                                                 .split(" ")
                                                                 .map((n) => n[0])
                                                                 .join("")}
                                                         </AvatarFallback>
                                                     </Avatar>
                                                     <div>
-                                                        <p className="font-medium">{event.name}</p>
-                                                        <p className="text-sm text-muted-foreground">{event.role}</p>
+                                                        <p className="font-medium">{event.user.fullName}</p>
+                                                        <p className="text-sm text-muted-foreground">{getRoleName(event.user.role)}</p>
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center space-x-4">
                                                     <div className="text-right">
-                                                        <p className="text-sm">{event.area}</p>
-                                                        <p className="text-sm text-muted-foreground">{event.time}</p>
+                                                        <p className="text-sm">{event.area.name}</p>
+                                                        <p className="text-sm text-muted-foreground">{formatDateTime(event.timestamp)}</p>
                                                     </div>
                                                     <Badge
-                                                        variant={event.type === "Entrada" ? "default" : "secondary"}
+                                                        variant={event.type === "ENTRY" ? "default" : "secondary"}
                                                         className="flex items-center space-x-1"
                                                     >
-                                                        {event.type === "Entrada" ? (
+                                                        {event.type === "ENTRY" ? (
                                                             <>
                                                                 <LogIn className="h-3 w-3" /> <span>Entrada</span>
                                                             </>

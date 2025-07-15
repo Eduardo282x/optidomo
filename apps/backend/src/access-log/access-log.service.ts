@@ -1,27 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { AccessType } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { LogAccessDto } from './access-log.dto';
 
 @Injectable()
 export class AccessLogService {
-    constructor(private prisma: PrismaService) { }
+    constructor(private prismaService: PrismaService) { }
 
-    logAccess(userId: number, areaId: number, type: AccessType) {
-        return this.prisma.accessLog.create({
+    getAccessControl() {
+        return this.prismaService.accessLog.findMany({
+            include: { user: true, area: true },
+            orderBy: { timestamp: 'desc' },
+        });
+    }
+
+    findByArea(areaId: number) {
+        return this.prismaService.accessLog.findMany({
+            where: { areaId },
+            include: { user: true, area: true },
+            orderBy: { timestamp: 'desc' },
+        });
+    }
+
+    logAccess(accessLog: LogAccessDto) {
+        const { userId, areaId, type } = accessLog;
+        return this.prismaService.accessLog.create({
             data: {
                 userId,
                 areaId,
                 type,
                 timestamp: new Date(),
             },
-        });
-    }
-
-    findByArea(areaId: number) {
-        return this.prisma.accessLog.findMany({
-            where: { areaId },
-            include: { user: true },
-            orderBy: { timestamp: 'desc' },
         });
     }
 }

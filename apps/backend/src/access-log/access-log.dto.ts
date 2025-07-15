@@ -1,17 +1,17 @@
-import { IsEnum, IsString, IsNotEmpty } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber } from 'class-validator';
 
 export enum AccessType {
     ENTRY = 'ENTRY',
     EXIT = 'EXIT',
 }
 export class LogAccessDto {
-    @IsString()
+    @IsNumber()
     @IsNotEmpty()
-    userId: string;
+    userId: number;
 
-    @IsString()
+    @IsNumber()
     @IsNotEmpty()
-    areaId: string;
+    areaId: number;
 
     @IsEnum(AccessType)
     type: AccessType;
