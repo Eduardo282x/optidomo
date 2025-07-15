@@ -73,12 +73,12 @@ export const AppSidebar = () => {
                         <SidebarMenu>
                             {menuSidebar && menuSidebar.map((me: IMenu, index: number) => {
                                 // const color = colorClassMap[me.className ?? 'gray-500'];
-    const color = colorClassMap[me.className ?? 'gray-500'] || colorClassMap['gray-500'];
+                                const color = colorClassMap[me.className ?? 'gray-500'] || colorClassMap['gray-500'];
                                 return (
                                     <SidebarMenuItem key={index}>
                                         <SidebarMenuButton
                                             onClick={() => navigate(me.url)}
-                                            className={`font-medium text-md hover:${color.text} ${me.active
+                                            className={`font-medium cursor-pointer text-md hover:${color.text} ${me.active
                                                 ? `${color.bg} hover:text-white hover:${color.bg} text-white`
                                                 : `${color.text}`}`}>
                                             <me.icon />

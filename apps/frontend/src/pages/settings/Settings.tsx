@@ -1,186 +1,108 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Badge } from "@/components/ui/badge"
+
 import { Plus, Edit, Trash2, Lightbulb, Thermometer, Zap } from "lucide-react"
 import { IoSettingsOutline } from "react-icons/io5"
+import { IDevice, TypeDevice } from "@/services/device/device.interface"
+import { IArea } from "@/services/area/area.interface"
+import { getDevices } from "@/services/device/device.service"
+import { getAreas } from "@/services/area/area.service"
+import { createdAreaDevices, deletedAreaDevices, getAreaDevices, updatedAreaDevices } from "@/services/area-device/area-device.service"
+import { AreaDeviceBody, GroupAreaDevices, IAreaDevice } from "@/services/area-device/area-device.interface"
+import { AreaDeviceAlertDialog, SettingForm } from "./SettingForm"
 
-interface DeviceAssignment {
-    id: string
-    areaId: string
-    areaName: string
-    deviceId: string
-    deviceName: string
-    deviceType: string
-    deviceSubtype: string
-    consumption: number
-    assignedAt: string
-}
 
 export const Settings = () => {
-    const [assignments, setAssignments] = useState<DeviceAssignment[]>([
-        {
-            id: "1",
-            areaId: "1",
-            areaName: "Entrada principal",
-            deviceId: "1",
-            deviceName: "Luz Entrada principal 1",
-            deviceType: "light",
-            deviceSubtype: "LED",
-            consumption: 12,
-            assignedAt: "2024-01-15",
-        },
-        {
-            id: "2",
-            areaId: "1",
-            areaName: "Entrada principal",
-            deviceId: "2",
-            deviceName: "Luz Entrada principal 2",
-            deviceType: "light",
-            deviceSubtype: "LED",
-            consumption: 12,
-            assignedAt: "2024-01-15",
-        },
-        {
-            id: "3",
-            areaId: "2",
-            areaName: "Salon 1",
-            deviceId: "3",
-            deviceName: "Aire Split 12BTU",
-            deviceType: "air_conditioner",
-            deviceSubtype: "Split",
-            consumption: 150,
-            assignedAt: "2024-01-15",
-        },
-        {
-            id: "4",
-            areaId: "2",
-            areaName: "Salon 1",
-            deviceId: "4",
-            deviceName: "Luz Principal",
-            deviceType: "light",
-            deviceSubtype: "Fluorescent",
-            consumption: 18,
-            assignedAt: "2024-01-15",
-        },
-    ])
+    const [areaDevices, setAreaDevices] = useState<GroupAreaDevices>({ allAreaDevices: [], areaDevices: [] })
+    const [devices, setDevices] = useState<IDevice[]>([])
+    const [areas, setAreas] = useState<IArea[]>([])
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [alertOpen, setAlertOpen] = useState(false);
+    const [areaDeviceSelected, setAreaDeviceSelected] = useState<IAreaDevice | null>(null);
 
-    // Mock data for areas and devices
-    const areas = [
-        { id: "1", name: "Entrada principal" },
-        { id: "2", name: "Salon 1" },
-        { id: "3", name: "Salon 2" },
-        { id: "4", name: "Comedor" },
-    ]
+    useEffect(() => {
+        getDevicesApi();
+        getAreasApi();
+        getAreasDevicesApi();
+    }, []);
 
-    const devices = [
-        { id: "1", name: "Main Entrance Light 1", type: "light", subtype: "LED", consumption: 12 },
-        { id: "2", name: "Main Entrance Light 2", type: "light", subtype: "LED", consumption: 12 },
-        { id: "3", name: "Classroom 1 AC", type: "air_conditioner", subtype: "Split", consumption: 150 },
-        { id: "4", name: "Classroom 1 Light 1", type: "light", subtype: "Fluorescent", consumption: 18 },
-        { id: "5", name: "Dining Area AC", type: "air_conditioner", subtype: "Central", consumption: 200 },
-    ]
+    // const filterDevices = (filter: string) => {
+    //     const normalize = (str: string) => str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 
-    const [isDialogOpen, setIsDialogOpen] = useState(false)
-    const [editingAssignment, setEditingAssignment] = useState<DeviceAssignment | null>(null)
-    const [formData, setFormData] = useState({
-        areaId: "",
-        deviceId: "",
-    })
+    //     setAreaDevices(prev => ({
+    //         ...prev,
+    //         devices: prev.allDevices.filter(item => normalize(item.name).includes(normalize(filter)))
+    //     }))
+    // }
 
-    const handleOpenDialog = (assignment?: DeviceAssignment) => {
-        if (assignment) {
-            setEditingAssignment(assignment)
-            setFormData({
-                areaId: assignment.areaId,
-                deviceId: assignment.deviceId,
-            })
-        } else {
-            setEditingAssignment(null)
-            setFormData({
-                areaId: "",
-                deviceId: "",
-            })
+    const getDevicesApi = async () => {
+        try {
+            const response = await getDevices();
+            setDevices(response)
+        } catch (err) {
+            console.log(err);
         }
-        setIsDialogOpen(true)
     }
-
-    const handleSave = () => {
-        const selectedArea = areas.find((a) => a.id === formData.areaId)
-        const selectedDevice = devices.find((d) => d.id === formData.deviceId)
-
-        if (!selectedArea || !selectedDevice) return
-
-        if (editingAssignment) {
-            // Edit existing assignment
-            setAssignments(
-                assignments.map((assignment) =>
-                    assignment.id === editingAssignment.id
-                        ? {
-                            ...assignment,
-                            areaId: formData.areaId,
-                            areaName: selectedArea.name,
-                            deviceId: formData.deviceId,
-                            deviceName: selectedDevice.name,
-                            deviceType: selectedDevice.type,
-                            deviceSubtype: selectedDevice.subtype,
-                            consumption: selectedDevice.consumption,
-                        }
-                        : assignment,
-                ),
-            )
-        } else {
-            // Add new assignment
-            const newAssignment: DeviceAssignment = {
-                id: Date.now().toString(),
-                areaId: formData.areaId,
-                areaName: selectedArea.name,
-                deviceId: formData.deviceId,
-                deviceName: selectedDevice.name,
-                deviceType: selectedDevice.type,
-                deviceSubtype: selectedDevice.subtype,
-                consumption: selectedDevice.consumption,
-                assignedAt: new Date().toISOString().split("T")[0],
-            }
-            setAssignments([...assignments, newAssignment])
+    const getAreasApi = async () => {
+        try {
+            const response = await getAreas();
+            setAreas(response)
+        } catch (err) {
+            console.log(err);
         }
-        setIsDialogOpen(false)
+    }
+    const getAreasDevicesApi = async () => {
+        try {
+            const response = await getAreaDevices();
+            setAreaDevices({ allAreaDevices: response, areaDevices: response })
+        } catch (err) {
+            console.log(err);
+        }
     }
 
-    const handleDelete = (id: string) => {
-        setAssignments(assignments.filter((assignment) => assignment.id !== id))
+    const actionTable = (action: string, areaDevice: IAreaDevice) => {
+        setAreaDeviceSelected(areaDevice)
+        if (action == 'edit') {
+            setDialogOpen(true)
+        }
+        if (action == 'delete') {
+            setAlertOpen(true)
+        }
     }
 
-    const getDeviceIcon = (type: string) => {
+    const newAreaDevice = () => {
+        setAreaDeviceSelected(null);
+        setDialogOpen(true);
+    }
+
+    const actionForm = async (newDevice: AreaDeviceBody) => {
+        if (areaDeviceSelected) {
+            await updatedAreaDevices(areaDeviceSelected.id, newDevice)
+        } else {
+            await createdAreaDevices(newDevice)
+        }
+        setDialogOpen(false);
+        await getAreasDevicesApi();
+    }
+
+    const deleteAreaDevice = async (device: IAreaDevice) => {
+        if (areaDeviceSelected) {
+            await deletedAreaDevices(device.id)
+            setAlertOpen(false);
+            await getAreasDevicesApi();
+        }
+    }
+
+    const getDeviceIcon = (type: TypeDevice) => {
         switch (type) {
-            case "light":
+            case "LIGHT":
                 return <Lightbulb className="h-4 w-4 text-yellow-500" />
-            case "air_conditioner":
+            case "AC":
                 return <Thermometer className="h-4 w-4 text-blue-500" />
             default:
                 return <Zap className="h-4 w-4 text-gray-500" />
@@ -189,15 +111,15 @@ export const Settings = () => {
 
     const getAreaStats = () => {
         const stats = areas.map((area) => {
-            const areaAssignments = assignments.filter((a) => a.areaId === area.id)
-            const totalConsumption = areaAssignments.reduce((sum, a) => sum + a.consumption, 0)
+            const areaAssignments = areaDevices.allAreaDevices.filter((a) => a.areaId === area.id)
+            const totalConsumption = areaAssignments.reduce((sum, a) => sum + a.device.powerWatts, 0)
             return {
                 ...area,
                 deviceCount: areaAssignments.length,
                 totalConsumption,
             }
-        })
-        return stats
+        }).filter(item => item.deviceCount != 0)
+        return stats;
     }
 
     return (
@@ -207,86 +129,27 @@ export const Settings = () => {
                     <h2 className="text-2xl font-bold">Configuración</h2>
                     <p className="text-muted-foreground">Asigna los dispositivos a las areas</p>
                 </div>
-                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogTrigger asChild>
-                        <Button onClick={() => handleOpenDialog()} className="bg-green-600 hover:bg-green-700">
-                            <Plus className="mr-2 h-4 w-4" />
-                            Asignar dispositivo
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
-                            <DialogTitle>{editingAssignment ? "Edit Assignment" : "Assign Device to Area"}</DialogTitle>
-                            <DialogDescription>
-                                {editingAssignment ? "Update the device assignment." : "Assign a device to a specific area."}
-                            </DialogDescription>
-                        </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                            <div className="grid gap-2">
-                                <Label htmlFor="area">Area</Label>
-                                <Select value={formData.areaId} onValueChange={(value) => setFormData({ ...formData, areaId: value })}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select an area" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {areas.map((area) => (
-                                            <SelectItem key={area.id} value={area.id}>
-                                                {area.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="grid gap-2">
-                                <Label htmlFor="device">Device</Label>
-                                <Select
-                                    value={formData.deviceId}
-                                    onValueChange={(value) => setFormData({ ...formData, deviceId: value })}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select a device" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {devices.map((device) => (
-                                            <SelectItem key={device.id} value={device.id}>
-                                                <div className="flex items-center space-x-2">
-                                                    {getDeviceIcon(device.type)}
-                                                    <span>{device.name}</span>
-                                                    <Badge variant="outline" className="ml-auto">
-                                                        {device.consumption}W
-                                                    </Badge>
-                                                </div>
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-                        <DialogFooter>
-                            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                                Cancel
-                            </Button>
-                            <Button onClick={handleSave} className="bg-green-600 hover:bg-green-700">
-                                {editingAssignment ? "Update" : "Assign"}
-                            </Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
+                <Button onClick={newAreaDevice} className="bg-green-600 hover:bg-green-700">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Asignar dispositivo
+                </Button>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-4">
-                {getAreaStats().map((area) => (
-                    <Card key={area.id}>
-                        <CardHeader className="-mb-6">
-                            <CardTitle className="text-sm font-medium">{area.name}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{area.deviceCount}</div>
-                            <p className="text-xs text-muted-foreground">Dispositivos</p>
-                            <div className="text-sm font-medium text-green-600 mt-1">{area.totalConsumption} W/h</div>
-                        </CardContent>
-                    </Card>
-                ))}
+            <div className="overflow-x-auto w-[65rem] py-2">
+                <div className="flex items-center gap-4 w-max">
+                    {getAreaStats().map((area) => (
+                        <Card key={area.id} className="w-48">
+                            <CardHeader className="-mb-6">
+                                <CardTitle className="text-sm font-medium">{area.name}</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold">{area.deviceCount}</div>
+                                <p className="text-xs text-muted-foreground">Dispositivos</p>
+                                <div className="text-sm font-medium text-green-600 mt-1">{area.totalConsumption} W/h</div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
             </div>
 
             <Card>
@@ -301,54 +164,35 @@ export const Settings = () => {
                     <Table>
                         <TableHeader>
                             <TableRow>
+                                <TableHead>Nombre</TableHead>
                                 <TableHead>Area</TableHead>
                                 <TableHead>Dispositivo</TableHead>
                                 <TableHead>Tipo</TableHead>
-                                {/* <TableHead>Subtype</TableHead> */}
                                 <TableHead>Consumo</TableHead>
-                                {/* <TableHead>Asignado</TableHead> */}
                                 <TableHead className="text-right">Acciones</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {assignments.map((assignment) => (
+                            {areaDevices.areaDevices.map((assignment) => (
                                 <TableRow key={assignment.id}>
-                                    <TableCell className="font-medium">{assignment.areaName}</TableCell>
+                                    <TableCell className="font-medium">{assignment.name}</TableCell>
+                                    <TableCell className="font-medium">{assignment.area.name}</TableCell>
                                     <TableCell>
                                         <div className="flex items-center space-x-2">
-                                            {getDeviceIcon(assignment.deviceType)}
-                                            <span>{assignment.deviceName}</span>
+                                            {getDeviceIcon(assignment.device.type)}
+                                            <span>{assignment.device.name}</span>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="capitalize">{assignment.deviceType == 'light' ? 'Luz' : 'Aire Acondicionado'}</TableCell>
-                                    {/* <TableCell>{assignment.deviceSubtype}</TableCell> */}
-                                    <TableCell>{assignment.consumption} W/h</TableCell>
-                                    {/* <TableCell>{assignment.assignedAt}</TableCell> */}
+                                    <TableCell className="capitalize">{assignment.device.type == 'LIGHT' ? 'Luz' : 'Aire Acondicionado'}</TableCell>
+                                    <TableCell>{assignment.device.powerWatts} W/h</TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex justify-end space-x-2">
-                                            <Button variant="outline" size="sm" onClick={() => handleOpenDialog(assignment)}>
-                                                <Edit className="h-4 w-4" />
+                                            <Button variant="secondary" size="icon" onClick={() => actionTable('edit', assignment)}>
+                                                <Edit className="h-4 w-4 text-green-500" />
                                             </Button>
-                                            <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <Button variant="outline" size="sm">
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                        <AlertDialogDescription>
-                                                            This action cannot be undone. This will remove the device "{assignment.deviceName}" from "
-                                                            {assignment.areaName}".
-                                                        </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={() => handleDelete(assignment.id)}>Remove</AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
+                                            <Button variant="secondary" size="icon" onClick={() => actionTable('delete', assignment)}>
+                                                <Trash2 className="h-4 w-4 text-red-500" />
+                                            </Button>
                                         </div>
                                     </TableCell>
                                 </TableRow>
@@ -357,6 +201,26 @@ export const Settings = () => {
                     </Table>
                 </CardContent>
             </Card>
-        </div>
+
+            {
+                dialogOpen && (
+                    <SettingForm
+                        open={dialogOpen}
+                        setOpen={setDialogOpen}
+                        data={areaDeviceSelected}
+                        onSubmit={actionForm}
+                        areas={areas}
+                        devices={devices}
+                    />
+                )
+            }
+
+            <AreaDeviceAlertDialog
+                open={alertOpen}
+                setOpen={setAlertOpen}
+                data={areaDeviceSelected}
+                onSubmit={deleteAreaDevice}
+            />
+        </div >
     )
 }

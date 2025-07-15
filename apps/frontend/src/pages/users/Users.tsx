@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Plus, Edit, Trash2, Shield, GraduationCap } from "lucide-react"
 import { FaUserFriends } from "react-icons/fa"
 import { GroupUser, IUser, Role, UserBody } from "@/services/user/user.interface"
-import { createUser, deleteUser, getUsers, updateUser } from "@/services/user/user.service"
+import { createUser, deleteUser, getUsersNormal, updateUser } from "@/services/user/user.service"
 import { UserAlertDialog, UsersForm } from "./UsersForm"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -39,7 +39,7 @@ export const Users = () => {
 
     const getUsersApi = async () => {
         try {
-            const response = await getUsers();
+            const response = await getUsersNormal();
             setUsers({ allUsers: response, users: response })
         } catch (err) {
             console.log(err);

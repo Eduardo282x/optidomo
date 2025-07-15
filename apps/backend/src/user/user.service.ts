@@ -11,16 +11,20 @@ export class UserService {
     }
 
     async getUsers() {
-        return await this.prismaService.user.findMany();
+        return await this.prismaService.user.findMany({
+            orderBy: { id: 'asc' }
+        });
     }
     async getUsersSystem() {
         return await this.prismaService.user.findMany({
-            where: { role: { not: 'STUDENT' } }
+            where: { role: { not: 'STUDENT' } },
+            orderBy: { id: 'asc' }
         });
     }
     async getStudents() {
         return await this.prismaService.user.findMany({
-            where: { role: 'STUDENT' }
+            where: { role: 'STUDENT' },
+            orderBy: { id: 'asc' }
         });
     }
 

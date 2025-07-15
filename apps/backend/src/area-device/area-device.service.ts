@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { badResponse, baseResponse } from 'src/base/base.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { AssignDeviceDto } from './area-devide.dto';
+import { AssignDeviceDto } from './area-device.dto';
 
 @Injectable()
 export class AreaDeviceService {
@@ -15,7 +15,8 @@ export class AreaDeviceService {
             include: {
                 area: true,
                 device: true
-            }
+            },
+            orderBy: { id: 'asc' }
         });
     }
 
