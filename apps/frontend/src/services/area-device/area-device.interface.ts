@@ -3,6 +3,7 @@ import { IDevice } from "../device/device.interface";
 
 export interface IAreaDevice extends AreaDeviceBody {
     id: number;
+    isOn: boolean;
     device: IDevice;
     area: IArea
 }

@@ -18,6 +18,13 @@ export const createdAreaDevices = async (data: AreaDeviceBody) => {
         return err;
     }
 }
+export const toggleStatusDevice = async (id: number) => {
+    try {
+        return await putDataApi(`${areaDeviceURL}/toggle/${id}`,{});
+    } catch (err) {
+        return err;
+    }
+}
 export const updatedAreaDevices = async (id: number, data: AreaDeviceBody) => {
     try {
         return await putDataApi(`${areaDeviceURL}/${id}`, data);

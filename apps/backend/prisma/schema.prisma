@@ -17,7 +17,6 @@ model Area {
   id         Int          @id @default(autoincrement())
   name       String
   devices    AreaDevice[]
-  energyLogs EnergyLog[]
   accessLogs AccessLog[]
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
@@ -34,29 +33,28 @@ model Device {
   type        DeviceType
   powerWatts  Float // Consumo en watts por hora
   areaDevices AreaDevice[]
-  energyLogs  EnergyLog[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
 
 model AreaDevice {
-  id       Int    @id @default(autoincrement())
-  name     String
-  area     Area   @relation(fields: [areaId], references: [id])
-  areaId   Int
-  device   Device @relation(fields: [deviceId], references: [id])
-  deviceId Int
+  id        Int         @id @default(autoincrement())
+  name      String
+  isOn      Boolean     @default(false)
+  area      Area        @relation(fields: [areaId], references: [id])
+  areaId    Int
+  device    Device      @relation(fields: [deviceId], references: [id])
+  deviceId  Int
+  EnergyLog EnergyLog[]
 }
 
 model EnergyLog {
-  id        Int       @id @default(autoincrement())
-  device    Device    @relation(fields: [deviceId], references: [id])
-  deviceId  Int
-  area      Area      @relation(fields: [areaId], references: [id])
-  areaId    Int
-  startedAt DateTime
-  endedAt   DateTime? // null mientras esté encendido
-  totalWh   Float? // Consumo en Wh (calculado al apagarse)
+  id           Int        @id @default(autoincrement())
+  areaDevice   AreaDevice @relation(fields: [areaDeviceId], references: [id])
+  areaDeviceId Int
+  startedAt    DateTime
+  endedAt      DateTime? // null mientras esté encendido
+  totalWh      Float? // Consumo en Wh (calculado al apagarse)
 }
 
 enum Role {

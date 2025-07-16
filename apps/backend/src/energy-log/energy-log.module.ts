@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 @Module({
   controllers: [EnergyLogController],
-  providers: [EnergyLogService, PrismaService]
+  providers: [EnergyLogService, PrismaService],
+  exports: [EnergyLogService]
 })
 export class EnergyLogModule {}

@@ -1,18 +1,6 @@
-import { IsString, IsNotEmpty } from 'class-validator';
-
-export class TurnOnDeviceDto {
-    @IsString()
+import { IsNotEmpty, IsNumber } from 'class-validator';
+export class ToggleEnergyLog {
+    @IsNumber()
     @IsNotEmpty()
-    deviceId: string;
-
-    @IsString()
-    @IsNotEmpty()
-    areaId: string;
-}
-
-
-export class TurnOffDeviceDto {
-    @IsString()
-    @IsNotEmpty()
-    deviceId: string;
+    areaDeviceId: number;
 }

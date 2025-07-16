@@ -18,6 +18,10 @@ export class AreaDeviceController {
     async assignAreaDevice(@Body() area: AssignDeviceDto) {
         return await this.areaDeviceService.assignAreaDevice(area);
     }
+    @Put('/toggle/:id')
+    async toggleDevice(@Param('id', ParseIntPipe) id: number) {
+        return await this.areaDeviceService.toggleDevice(id);
+    }
     @Put('/:id')
     async updateAreaDevice(@Param('id', ParseIntPipe) id: number, @Body() area: AssignDeviceDto) {
         return await this.areaDeviceService.updateAreaDevice(id, area);
