@@ -36,7 +36,11 @@ export const AppSidebar = () => {
         // if (location.pathname === '/temperatura') setBgColor('bg-orange-300')
         // if (location.pathname === '/acceso') setBgColor('bg-blue-300')
         // if (location.pathname === '/reportes') setBgColor('bg-purple-300')
-    }, [location.pathname])
+    }, [location.pathname]);
+
+    const logout = () => {
+        navigate('/login')
+    }
 
     const colorClassMap: Record<string, { text: string; bg: string }> = {
         'green-600': { text: 'text-green-600', bg: 'bg-green-600' },
@@ -94,7 +98,7 @@ export const AppSidebar = () => {
 
             <SidebarFooter>
                 <div className="flex items-center justify-between p-4">
-                    <Button variant="outline" className="w-full bg-red-600 text-white">
+                    <Button variant="outline" onClick={logout} className="w-full bg-red-600 text-white">
                         <span>Cerrar Sesión</span>
                         <LogOut className="h-4 w-4" />
                     </Button>

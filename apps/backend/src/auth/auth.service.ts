@@ -1,4 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { badResponse, baseResponse } from 'src/base/base.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -8,21 +9,20 @@ export class AuthService {
     async login(email: string, password: string) {
         const user = await this.prisma.user.findUnique({ where: { email, password } });
         if (!user) {
-            throw new UnauthorizedException('Invalid credentials');
+            badResponse.message = 'Usuario no encontrado.'
+            return badResponse;
         }
 
         // Solo admin y teacher pueden iniciar sesión
         if (user.role === 'STUDENT') {
-            throw new UnauthorizedException('Access denied');
+            badResponse.message = 'Acceso denegado.'
+            return badResponse;
         }
 
-        return {
-            access_token: user,
-            user: {
-                id: user.id,
-                fullName: user.fullName,
-                role: user.role,
-            },
-        };
+
+        baseResponse.data = user;
+        baseResponse.message = `Bienvenido ${user.fullName}.`;
+
+        return baseResponse;
     }
 }

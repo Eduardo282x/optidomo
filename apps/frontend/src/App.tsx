@@ -9,12 +9,18 @@ import { Users } from './pages/users/Users';
 import { Settings } from './pages/settings/Settings';
 import { Devices } from './pages/devices/Devices';
 import { Areas } from './pages/areas/Areas';
+import { Login } from './pages/auth/Login';
+import { Toaster } from './components/ui/sonner';
+import { useAxiosInterceptor } from './services/Interceptor';
 
 export const App = () => {
+  useAxiosInterceptor();
   return (
     <div className='w-screen h-screen overflow-y-auto'>
+      <Toaster richColors  />
       <BrowserRouter>
         <Routes>
+          <Route element={<Login />} path='/login'></Route>
           <Route element={<Layout></Layout>}>
             <Route element={<DashboardView />} path='/'></Route>
             <Route element={<LightingControl />} path='/luces'></Route>
