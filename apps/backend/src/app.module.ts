@@ -13,6 +13,7 @@ import { AccessLogModule } from './access-log/access-log.module';
 import { ReportModule } from './report/report.module';
 import { PrismaService } from './prisma/prisma.service';
 import { MainLoadModule } from './main-load/main-load.module';
+import { WebsocketModule } from './websocket/websocket.module';
 
 @Module({
   imports: [
@@ -27,7 +28,8 @@ import { MainLoadModule } from './main-load/main-load.module';
     EnergyLogModule,
     AccessLogModule,
     ReportModule,
-    MainLoadModule
+    MainLoadModule,
+    WebsocketModule
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

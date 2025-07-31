@@ -8,6 +8,7 @@ import { Thermometer, Power } from "lucide-react"
 import { IAreaDevice } from "@/services/area-device/area-device.interface"
 import { getAreaDevices, toggleAllStatusDevices, toggleStatusDevice, toggleStatusDevicesByArea } from "@/services/area-device/area-device.service"
 import { IArea } from "@/services/area/area.interface"
+import { socket, useSocket } from "@/services/socket.io"
 
 
 
@@ -19,6 +20,12 @@ export const TemperatureControl = () => {
     useEffect(() => {
         getAreaDeviceApi();
     }, []);
+
+    useSocket('areaDevicesUpdate', (data: IAreaDevice[]) => {
+        if (data && data.length > 0) {
+            setAreaDevices(data)
+        }
+    })
 
     const getAreaDeviceApi = async () => {
         try {
@@ -42,10 +49,14 @@ export const TemperatureControl = () => {
 
     const changeStatus = async (id: number) => {
         await toggleStatusDevice(id);
-        setAreaDevices(prev => prev.map(item => ({
-            ...item,
-            isOn: item.id == id ? !item.isOn : item.isOn
-        })))
+        setAreaDevices(prev => {
+            const updated = prev.map(item => ({
+                ...item,
+                isOn: item.id == id ? !item.isOn : item.isOn
+            }))
+            socket.emit('areaDevicesUpdate', updated)
+            return updated;
+        })
     }
 
     const changeTemperature = (deviceId: number, temperature: number) => {
@@ -57,25 +68,33 @@ export const TemperatureControl = () => {
 
     const toggleAllAirCondition = async (areaId: string, status: boolean) => {
         if (areaId == '0') return await turnOffAllAirCondition(status)
-        setAreaDevices(prev => prev.map(item => ({
-            ...item,
-            isOn: item.areaId == Number(areaId) ? status : item.isOn
-        })))
+        setAreaDevices(prev => {
+            const updated = prev.map(item => ({
+                ...item,
+                isOn: item.areaId == Number(areaId) ? status : item.isOn
+            }))
+            socket.emit('areaDevicesUpdate', updated)
+            return updated;
+        })
         await toggleStatusDevicesByArea(Number(areaId), 'AC', status)
     }
 
     const turnOffAllAirCondition = async (status: boolean) => {
-        setAreaDevices(prev => prev.map(item => ({
-            ...item,
-            isOn: status
-        })))
+        setAreaDevices(prev => {
+            const updated = prev.map(item => ({
+                ...item,
+                isOn: status
+            }))
+            socket.emit('areaDevicesUpdate', updated);
+            return updated;
+        })
         await toggleAllStatusDevices('AC', status);
     }
 
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-black">Control de Luces</h2>
+                <h2 className="text-2xl font-bold text-black">Control de Temperatura</h2>
                 <Button variant="outline" onClick={() => turnOffAllAirCondition(false)}>
                     <Power className="mr-2 h-4 w-4" /> Apagar todos
                 </Button>

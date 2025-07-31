@@ -7,6 +7,7 @@ import { Lightbulb, Power } from "lucide-react"
 import { IArea } from "@/services/area/area.interface"
 import { IAreaDevice } from "@/services/area-device/area-device.interface"
 import { getAreaDevices, toggleAllStatusDevices, toggleStatusDevice, toggleStatusDevicesByArea } from "@/services/area-device/area-device.service"
+import { socket, useSocket } from "@/services/socket.io"
 
 
 export const LightingControl = () => {
@@ -18,6 +19,12 @@ export const LightingControl = () => {
     useEffect(() => {
         getAreaDeviceApi();
     }, []);
+
+    useSocket('areaDevicesUpdate', (data: IAreaDevice[]) => {
+        if (data && data.length > 0) {
+            setAreaDevices(data)
+        }
+    })
 
     const getAreaDeviceApi = async () => {
         try {
@@ -41,26 +48,38 @@ export const LightingControl = () => {
 
     const changeStatus = async (id: number) => {
         await toggleStatusDevice(id);
-        setAreaDevices(prev => prev.map(item => ({
-            ...item,
-            isOn: item.id == id ? !item.isOn : item.isOn
-        })))
+        setAreaDevices(prev => {
+            const updated = prev.map(item => ({
+                ...item,
+                isOn: item.id == id ? !item.isOn : item.isOn
+            }))
+            socket.emit('areaDevicesUpdate', updated)
+            return updated;
+        })
     }
 
     const toggleAllLights = async (areaId: string, status: boolean) => {
         if (areaId == '0') return await turnOffAllLights(status)
-        setAreaDevices(prev => prev.map(item => ({
-            ...item,
-            isOn: item.areaId == Number(areaId) ? status : item.isOn
-        })))
+        setAreaDevices(prev => {
+            const updated = prev.map(item => ({
+                ...item,
+                isOn: item.areaId == Number(areaId) ? status : item.isOn
+            }))
+            socket.emit('areaDevicesUpdate', updated)
+            return updated;
+        })
         await toggleStatusDevicesByArea(Number(areaId), 'LIGHT', status)
     }
 
     const turnOffAllLights = async (status: boolean) => {
-        setAreaDevices(prev => prev.map(item => ({
-            ...item,
-            isOn: status
-        })))
+        setAreaDevices(prev => {
+            const updated = prev.map(item => ({
+                ...item,
+                isOn: status
+            }))
+            socket.emit('areaDevicesUpdate', updated);
+            return updated;
+        })
         await toggleAllStatusDevices('LIGHT', status);
     }
 
