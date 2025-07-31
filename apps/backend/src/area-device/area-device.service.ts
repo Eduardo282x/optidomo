@@ -41,6 +41,43 @@ export class AreaDeviceService {
         }
     }
 
+    async toggleDevicesByArea(areaId: number, type: 'AC' | 'LIGHT', status: boolean) {
+        const devices = await this.prismaService.areaDevice.findMany({ where: { device: { type }, areaId } });
+        const updated = await this.prismaService.areaDevice.updateMany({
+            where: { device: { type }, areaId },
+            data: { isOn: status }
+        });
+
+        devices.map(async (dev) => {
+            if (status) {
+                await this.energyLogService.turnOn(dev.id)
+            } else {
+                await this.energyLogService.turnOff(dev.id)
+            }
+        })
+
+        // OPCIONAL: registrar en EnergyLog si es necesario
+        return updated;
+    }
+    async toggleAllDevices(type: 'AC' | 'LIGHT', status: boolean) {
+        const devices = await this.prismaService.areaDevice.findMany({ where: { device: { type } } });
+        const updated = await this.prismaService.areaDevice.updateMany({
+            where: { device: { type } },
+            data: { isOn: status }
+        });
+
+        devices.map(async (dev) => {
+            if (status) {
+                await this.energyLogService.turnOn(dev.id)
+            } else {
+                await this.energyLogService.turnOff(dev.id)
+            }
+        })
+
+        // OPCIONAL: registrar en EnergyLog si es necesario
+        return updated;
+    }
+
     async toggleDevice(id: number) {
         const device = await this.prismaService.areaDevice.findUnique({ where: { id } });
         const updated = await this.prismaService.areaDevice.update({

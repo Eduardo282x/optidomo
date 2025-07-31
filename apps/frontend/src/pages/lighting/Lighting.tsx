@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Lightbulb, Power } from "lucide-react"
 import { IArea } from "@/services/area/area.interface"
 import { IAreaDevice } from "@/services/area-device/area-device.interface"
-import { getAreaDevices, toggleStatusDevice } from "@/services/area-device/area-device.service"
+import { getAreaDevices, toggleAllStatusDevices, toggleStatusDevice, toggleStatusDevicesByArea } from "@/services/area-device/area-device.service"
 
 
 export const LightingControl = () => {
@@ -47,22 +47,28 @@ export const LightingControl = () => {
         })))
     }
 
-    const toggleAllLights = (areaId: string, status: boolean) => {
-        console.log(areaId);
-        console.log(status);
+    const toggleAllLights = async (areaId: string, status: boolean) => {
+        if (areaId == '0') return await turnOffAllLights(status)
+        setAreaDevices(prev => prev.map(item => ({
+            ...item,
+            isOn: item.areaId == Number(areaId) ? status : item.isOn
+        })))
+        await toggleStatusDevicesByArea(Number(areaId), 'LIGHT', status)
     }
 
-    const turnOffAllLights = () => {
-        console.log('Apagar todas');
-
-        // () => setLights(lights.map((light) => ({ ...light, status: false })))
+    const turnOffAllLights = async (status: boolean) => {
+        setAreaDevices(prev => prev.map(item => ({
+            ...item,
+            isOn: status
+        })))
+        await toggleAllStatusDevices('LIGHT', status);
     }
 
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-black">Control de Luces</h2>
-                <Button variant="outline" onClick={turnOffAllLights}>
+                <Button variant="outline" onClick={() => turnOffAllLights(false)}>
                     <Power className="mr-2 h-4 w-4" /> Apagar todas
                 </Button>
             </div>

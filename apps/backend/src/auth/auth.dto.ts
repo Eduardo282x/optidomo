@@ -2,7 +2,7 @@ import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export class LoginDto {
     @IsString()
-    @IsEmail()
+    @IsEmail({}, {message: 'Debe ingresar un correo electrónico valido'})
     email: string;
 
     @IsString()

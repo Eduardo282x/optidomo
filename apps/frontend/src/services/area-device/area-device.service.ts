@@ -18,9 +18,23 @@ export const createdAreaDevices = async (data: AreaDeviceBody) => {
         return err;
     }
 }
+export const toggleStatusDevicesByArea = async (areaId: number, type: 'AC' | 'LIGHT', status: boolean) => {
+    try {
+        return await putDataApi(`${areaDeviceURL}/toggleByArea?areaId=${areaId}&type=${type}&status=${status}`, {});
+    } catch (err) {
+        return err;
+    }
+}
+export const toggleAllStatusDevices = async (type: 'AC' | 'LIGHT', status: boolean) => {
+    try {
+        return await putDataApi(`${areaDeviceURL}/toggle?type=${type}&status=${status}`, {});
+    } catch (err) {
+        return err;
+    }
+}
 export const toggleStatusDevice = async (id: number) => {
     try {
-        return await putDataApi(`${areaDeviceURL}/toggle/${id}`,{});
+        return await putDataApi(`${areaDeviceURL}/toggle/${id}`, {});
     } catch (err) {
         return err;
     }

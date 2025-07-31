@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseBoolPipe, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
 import { AreaDeviceService } from './area-device.service';
 import { AssignDeviceDto } from './area-device.dto';
 
@@ -17,6 +17,14 @@ export class AreaDeviceController {
     @Post()
     async assignAreaDevice(@Body() area: AssignDeviceDto) {
         return await this.areaDeviceService.assignAreaDevice(area);
+    }
+    @Put('/toggleByArea')
+    async toggleDevicesByArea(@Query('areaId', ParseIntPipe) areaId: number, @Query('type') type: 'AC' | 'LIGHT', @Query('status', ParseBoolPipe) status: boolean) {
+        return await this.areaDeviceService.toggleDevicesByArea(areaId, type, status);
+    }
+    @Put('/toggle')
+    async toggleAllDevices(@Query('type') type: 'AC' | 'LIGHT', @Query('status', ParseBoolPipe) status: boolean) {
+        return await this.areaDeviceService.toggleAllDevices(type, status);
     }
     @Put('/toggle/:id')
     async toggleDevice(@Param('id', ParseIntPipe) id: number) {
