@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button"
 import { IMenu, menu } from "./menu.data"
 import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from 'react-router';
+import { Separator } from "@/components/ui/separator"
 
 export const AppSidebar = () => {
     const location = useLocation();
@@ -79,16 +80,19 @@ export const AppSidebar = () => {
                                 // const color = colorClassMap[me.className ?? 'gray-500'];
                                 const color = colorClassMap[me.className ?? 'gray-500'] || colorClassMap['gray-500'];
                                 return (
-                                    <SidebarMenuItem key={index}>
-                                        <SidebarMenuButton
-                                            onClick={() => navigate(me.url)}
-                                            className={`font-medium cursor-pointer text-md hover:${color.text} ${me.active
-                                                ? `${color.bg} hover:text-white hover:${color.bg} text-white`
-                                                : `${color.text}`}`}>
-                                            <me.icon />
-                                            <span>{me.label}</span>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
+                                    me.type == 'normal' ?
+                                        <SidebarMenuItem key={index}>
+                                            <SidebarMenuButton
+                                                onClick={() => navigate(me.url)}
+                                                className={`font-medium cursor-pointer text-md hover:${color.text} ${me.active
+                                                    ? `${color.bg} hover:text-white hover:${color.bg} text-white`
+                                                    : `${color.text}`}`}>
+                                                <me.icon />
+                                                <span>{me.label}</span>
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                        :
+                                        <Separator />
                                 )
                             })}
                         </SidebarMenu>

@@ -10,6 +10,7 @@ export interface IMenu {
     url: string;
     className?: string;
     active: boolean;
+    type: 'normal' | 'separador'
 }
 
 export const menu: IMenu[] = [
@@ -18,6 +19,7 @@ export const menu: IMenu[] = [
         icon: FaHome,
         url: '/',
         active: false,
+        type: 'normal',
         className: 'green-600',
     },
     {
@@ -25,6 +27,7 @@ export const menu: IMenu[] = [
         icon: Lightbulb,
         url: '/luces',
         active: false,
+        type: 'normal',
         className: 'yellow-500',
     },
     {
@@ -32,6 +35,7 @@ export const menu: IMenu[] = [
         icon: Thermometer,
         url: '/temperatura',
         active: false,
+        type: 'normal',
         className: 'orange-500',
     },
     {
@@ -39,6 +43,15 @@ export const menu: IMenu[] = [
         icon: Lock,
         url: '/acceso',
         active: false,
+        type: 'normal',
+        className: 'sky-500',
+    },
+    {
+        label: 'Acceso',
+        icon: Lock,
+        url: '/acceso',
+        active: false,
+        type: 'separador',
         className: 'sky-500',
     },
     {
@@ -46,6 +59,7 @@ export const menu: IMenu[] = [
         icon: MdOutlineMeetingRoom,
         url: '/areas',
         active: false,
+        type: 'normal',
         className: 'emerald-500',
     },
     {
@@ -53,20 +67,15 @@ export const menu: IMenu[] = [
         icon: FaPlug,
         url: '/dispositivos',
         active: false,
+        type: 'normal',
         className: 'indigo-500',
-    },
-    {
-        label: 'Configuración',
-        icon: IoSettingsOutline,
-        url: '/configuracion',
-        active: false,
-        className: 'gray-500',
     },
     {
         label: 'Usuarios',
         icon: FaUserFriends,
         url: '/usuarios',
         active: false,
+        type: 'normal',
         className: 'purple-500',
     },
     {
@@ -74,6 +83,15 @@ export const menu: IMenu[] = [
         icon: FileBarChart,
         url: '/reportes',
         active: false,
+        type: 'normal',
         className: 'fuchsia-600',
+    },
+        {
+        label: 'Configuración',
+        icon: IoSettingsOutline,
+        url: '/configuracion',
+        active: false,
+        type: 'normal',
+        className: 'gray-500',
     },
 ];

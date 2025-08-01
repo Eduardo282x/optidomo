@@ -14,7 +14,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://c8q2gmjq-3000.use2.devtunnels.ms/',
+        target: 'http://localhost:3000',
+        // target: 'https://c8q2gmjq-3000.use2.devtunnels.ms',
         changeOrigin: true,
       }
     }

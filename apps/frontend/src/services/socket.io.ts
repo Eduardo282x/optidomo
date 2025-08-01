@@ -2,8 +2,8 @@
 import { useEffect } from "react";
 import { io } from "socket.io-client";
 
-// const socketUrl = 'http://localhost:3000'
-const socketUrl = 'https://c8q2gmjq-3000.use2.devtunnels.ms/'
+const socketUrl = 'http://localhost:3000'
+// const socketUrl = 'https://c8q2gmjq-3000.use2.devtunnels.ms/'
 
 export const socket = io(socketUrl, {
     transports: ['websocket']

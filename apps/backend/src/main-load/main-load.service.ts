@@ -15,9 +15,9 @@ export class MainLoadService {
             // Crear usuarios
             const admin = await this.prisma.user.create({
                 data: {
-                    fullName: 'Carlos Mendoza',
-                    email: 'admin@optidomo.edu',
-                    password: 'admin123',
+                    fullName: 'Enyerlin',
+                    email: 'enyarlin@gmail.com',
+                    password: 'admin',
                     role: 'ADMIN',
                     isPaid: true,
                 },
