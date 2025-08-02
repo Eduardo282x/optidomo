@@ -1,31 +1,33 @@
+import { ScreenLoader } from '@/components/loaders/ScreenLoader'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/layout/AppSidebar'
+import { useApiLoading } from '@/services/Interceptor'
+import { useEffect } from 'react'
 // import { useEffect, useState } from 'react';
-import { Outlet } from 'react-router'
+import { Outlet, useLocation } from 'react-router'
+import { useNavigate } from 'react-router'
 
 export const Layout = () => {
-    // const location = useLocation();
-    // const [bgColor, setBgColor] = useState<string>('');
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { isLoading } = useApiLoading();
 
-    // useEffect(() => {
-    //     if (location.pathname === '/') setBgColor('bg-green-600')
-    //     if (location.pathname === '/luces') setBgColor('bg-yellow-500')
-    //     if (location.pathname === '/temperatura') setBgColor('bg-orange-500')
-    //     if (location.pathname === '/acceso') setBgColor('bg-blue-500')
-    //     if (location.pathname === '/reportes') setBgColor('bg-purple-500')
+    useEffect(() => {console.log(isLoading);
+    },[isLoading])
 
-    //     console.log(bgColor);
-
-    // }, [location.pathname])
+    useEffect(() => {
+        const getToken = localStorage.getItem('token');
+        if (!getToken) {
+            navigate('/login')
+        }
+    }, [location.pathname])
 
     return (
         <div className='w-full h-full'>
             <SidebarProvider>
                 <AppSidebar></AppSidebar>
                 <div className={`w-full h-full min-h-screen p-4 bg-gray-200`}>
-                    {/* <div className='flex items-center justify-start px-4 h-10'>
-                        <SidebarTrigger/>
-                    </div> */}
+                    {isLoading && <ScreenLoader />}
                     <Outlet></Outlet>
                 </div>
             </SidebarProvider>

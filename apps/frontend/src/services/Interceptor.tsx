@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from './api';
 import { toast } from 'sonner';
 
@@ -48,3 +48,36 @@ export const useAxiosInterceptor = () => {
 
     return null;
 }
+
+export const useApiLoading = () => {
+    const [isLoading, setIsLoading] = useState(false);
+    let activeRequests = 0;
+
+    useEffect(() => {
+        const requestInterceptor = api.interceptors.request.use((config) => {
+            activeRequests++;
+            setIsLoading(true);
+            return config;
+        });
+
+        const responseInterceptor = api.interceptors.response.use(
+            (response) => {
+                activeRequests--;
+                if (activeRequests === 0) setIsLoading(false);
+                return response;
+            },
+            (error) => {
+                activeRequests--;
+                if (activeRequests === 0) setIsLoading(false);
+                return Promise.reject(error);
+            }
+        );
+
+        return () => {
+            api.interceptors.request.eject(requestInterceptor);
+            api.interceptors.response.eject(responseInterceptor);
+        };
+    }, []);
+
+    return { isLoading };
+};

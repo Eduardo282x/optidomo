@@ -15,14 +15,17 @@ import { IMenu, menu } from "./menu.data"
 import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from 'react-router';
 import { Separator } from "@/components/ui/separator"
+import { IUser, Role } from "@/services/auth/auth.interface"
 
 export const AppSidebar = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    // const [bgColor, setBgColor] = useState<string>('');
     const [menuSidebar, setMenuSidebar] = useState<IMenu[]>(menu);
+    const [userData, setUserData] = useState<IUser | null>(null)
 
     useEffect(() => {
+        const getToken = localStorage.getItem('token') as string;
+        setUserData(JSON.parse(getToken));
         setMenuSidebar((prev) => (
             prev.map(me => {
                 return {
@@ -31,15 +34,10 @@ export const AppSidebar = () => {
                 }
             })
         ))
-
-        // if (location.pathname === '/') setBgColor('bg-green-400')
-        // if (location.pathname === '/luces') setBgColor('bg-yellow-300')
-        // if (location.pathname === '/temperatura') setBgColor('bg-orange-300')
-        // if (location.pathname === '/acceso') setBgColor('bg-blue-300')
-        // if (location.pathname === '/reportes') setBgColor('bg-purple-300')
     }, [location.pathname]);
 
     const logout = () => {
+        localStorage.removeItem('token')
         navigate('/login')
     }
 
@@ -76,7 +74,7 @@ export const AppSidebar = () => {
                 <SidebarGroup>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {menuSidebar && menuSidebar.map((me: IMenu, index: number) => {
+                            {menuSidebar && menuSidebar.filter(item => item.permission.includes((userData && userData.role) as Role)).map((me: IMenu, index: number) => {
                                 // const color = colorClassMap[me.className ?? 'gray-500'];
                                 const color = colorClassMap[me.className ?? 'gray-500'] || colorClassMap['gray-500'];
                                 return (
@@ -92,7 +90,7 @@ export const AppSidebar = () => {
                                             </SidebarMenuButton>
                                         </SidebarMenuItem>
                                         :
-                                        <Separator />
+                                        <Separator className="bg-black opacity-10 !h-1 rounded-full"/>
                                 )
                             })}
                         </SidebarMenu>

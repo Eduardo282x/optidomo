@@ -33,6 +33,7 @@ export const App = () => {
             <Route element={<Areas />} path='/areas'></Route>
             <Route element={<Devices />} path='/dispositivos'></Route>
             <Route element={<Settings />} path='/configuracion'></Route>
+            <Route element={<Users />} path='/estudiantes'></Route>
             <Route element={<Users />} path='/usuarios'></Route>
             <Route element={<ReportsModule />} path='/reportes'></Route>
           </Route>

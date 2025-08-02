@@ -1,9 +1,10 @@
+import { ScreenLoader } from "@/components/loaders/ScreenLoader"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { loginAPI } from "@/services/auth/auth.service"
-import { Leaf, Mail, EyeOff, Eye, Loader2, Lock } from "lucide-react"
+import { Leaf, Mail, EyeOff, Eye, Loader2, Lock, Smartphone } from "lucide-react"
 import { useState } from "react"
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router"
@@ -21,8 +22,6 @@ export const Login = () => {
             password: ''
         }
     });
-
-
     const [showPassword, setShowPassword] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
 
@@ -31,6 +30,7 @@ export const Login = () => {
         try {
             const response = await loginAPI(data);
             if (response && response.success) {
+                localStorage.setItem('token', JSON.stringify(response.data))
                 setTimeout(() => {
                     navigate('/')
                 }, 1500);
@@ -41,10 +41,11 @@ export const Login = () => {
         setIsLoading(false)
     }
 
-
+    const goToControlRemote = () => navigate('/control-remoto')
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-200  p-4">
+        <div className="min-h-screen flex items-center justify-center bg-gray-200 p-4">
+            {isLoading && <ScreenLoader/>}
             <div className="w-full max-w-md space-y-6">
                 {/* Logo and Title */}
                 <div className="text-center space-y-4">
@@ -119,6 +120,11 @@ export const Login = () => {
                         </form>
                     </CardContent>
                 </Card>
+
+                <Button onClick={goToControlRemote} variant='default' className="w-full text-xl">
+                    <Smartphone className="text-white" />
+                    Control Remoto
+                </Button>
 
             </div>
         </div>

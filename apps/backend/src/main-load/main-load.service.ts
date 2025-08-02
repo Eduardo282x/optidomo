@@ -16,7 +16,7 @@ export class MainLoadService {
             const admin = await this.prisma.user.create({
                 data: {
                     fullName: 'Enyerlin',
-                    email: 'enyarlin@gmail.com',
+                    email: 'enyerlin@gmail.com',
                     password: 'admin',
                     role: 'ADMIN',
                     isPaid: true,

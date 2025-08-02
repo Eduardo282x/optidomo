@@ -129,7 +129,7 @@ export const MobileRemote = () => {
                                                 </div>
                                                 <div>
                                                     <h3 className="font-medium text-gray-900">{area.name}</h3>
-                                                    <p className="text-sm text-gray-600">{areaDevices.filter(ar => ar.areaId == area.id).length} devices</p>
+                                                    <p className="text-sm text-gray-600">{areaDevices.filter(ar => ar.areaId == area.id).length} dispositivos</p>
                                                 </div>
                                             </div>
                                             <div className="text-right">
@@ -138,7 +138,7 @@ export const MobileRemote = () => {
                                                         variant='default'
                                                         className="bg-green-100 text-green-700"
                                                     >
-                                                        {areaDevices.filter(ar => ar.areaId == area.id).filter(dev => dev.isOn).length} active
+                                                        {areaDevices.filter(ar => ar.areaId == area.id).filter(dev => dev.isOn).length} activos
                                                     </Badge>
                                                 </div>
                                             </div>

@@ -53,6 +53,7 @@ export class UserService {
                     fullName: user.fullName,
                     email: user.email,
                     role: user.role,
+                    isPaid: user.isPaid
                 },
                 where: { id }
             });

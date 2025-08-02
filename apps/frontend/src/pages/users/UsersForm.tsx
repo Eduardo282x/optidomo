@@ -10,14 +10,18 @@ import { useForm } from 'react-hook-form';
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
-export const UsersForm = ({ open, setOpen, onSubmit, data }: DialogFormProps<IUser, UserBody>) => {
+interface UsersFormProps extends DialogFormProps<IUser, UserBody> {
+    isStudent: boolean;
+}
+
+export const UsersForm = ({ open, setOpen, onSubmit, data, isStudent }: UsersFormProps) => {
     const isEdit = data ? true : false;
 
     const { register, handleSubmit, watch, setValue, reset } = useForm<UserBody>({
         defaultValues: {
             fullName: '',
             email: '',
-            role: ''
+            role: isStudent ? 'STUDENT' : ''
         }
     });
 
@@ -35,9 +39,9 @@ export const UsersForm = ({ open, setOpen, onSubmit, data }: DialogFormProps<IUs
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>{isEdit ? "Actualizar Usuario" : "Agregar nuevo Usuario"}</DialogTitle>
+                    <DialogTitle>{isEdit ? `Actualizar ${isStudent ? 'Estudiante' : 'Usuario'} ` : `Agregar nuevo ${isStudent ? 'Estudiante' : 'Usuario'}`}</DialogTitle>
                     <DialogDescription>
-                        {isEdit ? "Actualiza la información del usuario." : "Crea una nueva cuenta de usuario para el sistema."}
+                        {isEdit ? `Actualiza la información del ${isStudent ? 'estudiante' : 'usuario'}.` : `Crea una nueva cuenta de ${isStudent ? 'estudiante' : 'usuario'} para el sistema.`}
                     </DialogDescription>
                 </DialogHeader>
                 <form id="user-form" onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
@@ -58,18 +62,20 @@ export const UsersForm = ({ open, setOpen, onSubmit, data }: DialogFormProps<IUs
                             {...register('email')}
                         />
                     </div>
-                    <div className="grid gap-2">
-                        <Label htmlFor="role">Rol</Label>
-                        <Select value={watch('role')} onValueChange={(value) => setValue('role', value as Role)}>
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Selecciona un rol" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="ADMIN">Administrator</SelectItem>
-                                <SelectItem value="TEACHER">Profesor</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    {!isStudent && (
+                        <div className="grid gap-2">
+                            <Label htmlFor="role">Rol</Label>
+                            <Select value={watch('role')} onValueChange={(value) => setValue('role', value as Role)}>
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Selecciona un rol" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="ADMIN">Administrator</SelectItem>
+                                    <SelectItem value="TEACHER">Profesor</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
                 </form>
                 <DialogFooter>
                     <Button type="button" variant="outline" onClick={onClose}>
@@ -84,7 +90,11 @@ export const UsersForm = ({ open, setOpen, onSubmit, data }: DialogFormProps<IUs
     )
 }
 
-export const UserAlertDialog = ({ open, setOpen, onSubmit, data }: DialogFormProps<IUser, IUser>) => {
+interface UserAlertDialogProps extends DialogFormProps<IUser, IUser> {
+    isStudent: boolean;
+}
+
+export const UserAlertDialog = ({ open, setOpen, onSubmit, data, isStudent }: UserAlertDialogProps) => {
 
     const onClose = () => {
         setOpen(false);
@@ -101,7 +111,7 @@ export const UserAlertDialog = ({ open, setOpen, onSubmit, data }: DialogFormPro
                 <AlertDialogHeader>
                     <AlertDialogTitle>Estas seguro?</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Esta acción no se puede deshacer. Esto eliminara al usuario "{data ? data.fullName : ''}". permanentemente.
+                        Esta acción no se puede deshacer. Esto eliminara al {isStudent ? 'estudiante' : 'usuario'} "{data ? data.fullName : ''}". permanentemente.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

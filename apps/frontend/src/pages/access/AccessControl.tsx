@@ -9,11 +9,12 @@ import { IAccessLog } from "@/services/accessControl/access-control.interface"
 import { IArea } from "@/services/area/area.interface"
 import { Role } from "@/services/user/user.interface"
 import { formatDateTime } from "@/lib/formatters"
+import { Button } from "@/components/ui/button"
 
 export function AccessControl() {
+    const [areaSelected, setAreaSelected] = useState<IArea | null>(null);
     const [accessEvents, setAccessEvents] = useState<IAccessLog[]>([])
     const [areas, setAreas] = useState<IArea[]>([]);
-    const [areaSelected, setAreaSelected] = useState<IArea | null>(null);
 
     useEffect(() => {
         getAccessControlApi();
@@ -52,7 +53,10 @@ export function AccessControl() {
 
     return (
         <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-black">Control de Acceso</h2>
+            <div className="flex items-end justify-between">
+                <h2 className="text-2xl font-bold text-black">Control de Acceso</h2>
+                <Button className="bg-blue-600 hover:bg-blue-500">Simular acceso</Button>
+            </div>
 
             <Tabs defaultValue="0" onValueChange={(value) => setArea(Number(value))}>
                 <TabsList className="mb-4">
@@ -99,7 +103,7 @@ export function AccessControl() {
                                                     </div>
                                                     <Badge
                                                         variant={event.type === "ENTRY" ? "default" : "secondary"}
-                                                        className="flex items-center space-x-1"
+                                                        className="flex items-center space-x-1 rounded-2xl"
                                                     >
                                                         {event.type === "ENTRY" ? (
                                                             <>
