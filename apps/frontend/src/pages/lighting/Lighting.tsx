@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
-import { Lightbulb, Power } from "lucide-react"
+import { Lightbulb } from "lucide-react"
 import { IArea } from "@/services/area/area.interface"
 import { IAreaDevice } from "@/services/area-device/area-device.interface"
 import { getAreaDevices, toggleAllStatusDevices, toggleStatusDevice, toggleStatusDevicesByArea } from "@/services/area-device/area-device.service"
@@ -34,7 +34,7 @@ export const LightingControl = () => {
             const uniqueAreas = areas.filter((a, i, arr) =>
                 arr.findIndex(b => b.id === a.id) === i
             );
-            setAreas([{ id: 0, name: 'Todas' }, ...uniqueAreas]);
+            setAreas([{ id: 0, name: 'Todas las areas' }, ...uniqueAreas]);
         } catch (err) {
             console.log(err);
         }
@@ -87,9 +87,7 @@ export const LightingControl = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-black">Control de Luces</h2>
-                <Button variant="outline" onClick={() => turnOffAllLights(false)}>
-                    <Power className="mr-2 h-4 w-4" /> Apagar todas
-                </Button>
+                
             </div>
 
             <Tabs defaultValue="0" onValueChange={(value) => setArea(Number(value))}>

@@ -34,7 +34,7 @@ export class UserService {
                 data: {
                     fullName: user.fullName,
                     email: user.email,
-                    password: '1234',
+                    password: 'optidomo',
                     role: user.role,
                 }
             });

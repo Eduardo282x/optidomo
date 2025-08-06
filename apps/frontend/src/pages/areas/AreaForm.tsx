@@ -43,7 +43,7 @@ export const AreaForm = ({ open, setOpen, onSubmit, data }: DialogFormProps<IAre
                         <Input
                             id="name"
                             {...register('name')}
-                            placeholder="Nombre del dispositivo"
+                            placeholder="Nombre del area"
                         />
                     </div>
                 </form>

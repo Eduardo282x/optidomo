@@ -94,8 +94,8 @@ export const Areas = () => {
                     </div>
 
                     <div className="grid gap-2">
-                        <Label>Buscar dispositivo</Label>
-                        <Input type="search" className="w-72" placeholder="Buscar dispositivo..." onChange={(e) => filterAreas(e.target.value)} />
+                        <Label>Buscar areas</Label>
+                        <Input type="search" className="w-72" placeholder="Buscar areas..." onChange={(e) => filterAreas(e.target.value)} />
                     </div>
                 </CardHeader>
                 <CardContent>

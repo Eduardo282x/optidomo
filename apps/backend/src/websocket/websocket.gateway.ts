@@ -20,6 +20,11 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
         client.broadcast.emit('areaDevicesUpdate', data)
     }
 
+    @SubscribeMessage('accessLogUpdate')
+    handleAccess(@ConnectedSocket() client: Socket, @MessageBody() data: any[]) {
+        client.emit('accessLogUpdate', data)
+    }
+
     @SubscribeMessage('message')
     handleMessage(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
         console.log(data);

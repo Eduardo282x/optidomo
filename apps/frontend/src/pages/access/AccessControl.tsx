@@ -9,7 +9,10 @@ import { IAccessLog } from "@/services/accessControl/access-control.interface"
 import { IArea } from "@/services/area/area.interface"
 import { Role } from "@/services/user/user.interface"
 import { formatDateTime } from "@/lib/formatters"
-import { Button } from "@/components/ui/button"
+// import { Button } from "@/components/ui/button"
+import { useSocket } from "@/services/socket.io"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 
 export function AccessControl() {
     const [areaSelected, setAreaSelected] = useState<IArea | null>(null);
@@ -19,6 +22,11 @@ export function AccessControl() {
     useEffect(() => {
         getAccessControlApi();
     }, [])
+
+    useSocket('accessLogUpdate', (data: string) => {
+        console.log(data);
+        getAccessControlApi();
+    })
 
     const getAccessControlApi = async () => {
         try {
@@ -50,12 +58,26 @@ export function AccessControl() {
         setAreaSelected(findArea);
     }
 
+    const filterUser = (filter: string) => {
+        // const normalize = (str: string) => str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+
+        console.log(filter);
+
+        // setUsers(prev => ({
+        //     ...prev,
+        //     users: prev.allUsers.filter(item =>
+        //         normalize(item.fullName).includes(normalize(filter)) ||
+        //         normalize(item.email).includes(normalize(filter))
+        //     )
+        // }))
+    }
+
 
     return (
         <div className="space-y-6">
             <div className="flex items-end justify-between">
                 <h2 className="text-2xl font-bold text-black">Control de Acceso</h2>
-                <Button className="bg-blue-600 hover:bg-blue-500">Simular acceso</Button>
+                {/* <Button className="bg-blue-600 hover:bg-blue-500">Simular acceso</Button> */}
             </div>
 
             <Tabs defaultValue="0" onValueChange={(value) => setArea(Number(value))}>
@@ -67,6 +89,10 @@ export function AccessControl() {
                     ))}
                 </TabsList>
 
+                <div className="grid gap-2">
+                    <Label>Buscar usuario</Label>
+                    <Input type="search" className="w-72" placeholder={`Buscar  usuario`} onChange={(e) => filterUser(e.target.value)} />
+                </div>
                 {areas.map((area) => (
                     <TabsContent key={area.id} value={area.id.toString()}>
                         <Card>

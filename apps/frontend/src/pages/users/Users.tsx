@@ -84,14 +84,22 @@ export const Users = () => {
             await createUser(newUser)
         }
         setDialogOpen(false);
-        await getUsersApi();
+        if (isStudent) {
+            await getStudentsApi()
+        } else {
+            await getUsersApi();
+        }
     }
 
     const deleteUserApi = async (user: IUser) => {
         if (userSelected) {
             await deleteUser(user.id)
             setAlertOpen(false);
-            await getUsersApi();
+            if (isStudent) {
+                await getStudentsApi()
+            } else {
+                await getUsersApi();
+            }
         }
     }
 
@@ -137,7 +145,7 @@ export const Users = () => {
             }))
         }));
 
-        await updateUser(user.id, {...user, isPaid: !user.isPaid})
+        await updateUser(user.id, { ...user, isPaid: !user.isPaid })
     }
 
     return (
@@ -259,6 +267,14 @@ export const Users = () => {
                                     </TableCell>
                                 </TableRow>
                             ))}
+
+                            {users.users.length == 0 && (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="text-center font-bold text-xl py-4">
+                                        Usuario no encontrado.
+                                    </TableCell>
+                                </TableRow>
+                            )}
                         </TableBody>
                     </Table>
                 </CardContent>

@@ -4,13 +4,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
-import { Thermometer, Power } from "lucide-react"
+import { Thermometer } from "lucide-react"
 import { IAreaDevice } from "@/services/area-device/area-device.interface"
 import { getAreaDevices, toggleAllStatusDevices, toggleStatusDevice, toggleStatusDevicesByArea } from "@/services/area-device/area-device.service"
 import { IArea } from "@/services/area/area.interface"
 import { socket, useSocket } from "@/services/socket.io"
-
-
 
 export const TemperatureControl = () => {
     const [areas, setAreas] = useState<IArea[]>([]);
@@ -35,7 +33,7 @@ export const TemperatureControl = () => {
             const uniqueAreas = areas.filter((a, i, arr) =>
                 arr.findIndex(b => b.id === a.id) === i
             );
-            setAreas([{ id: 0, name: 'Todas' }, ...uniqueAreas]);
+            setAreas([{ id: 0, name: 'Todas las areas' }, ...uniqueAreas]);
         } catch (err) {
             console.log(err);
         }
@@ -95,9 +93,9 @@ export const TemperatureControl = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-black">Control de Temperatura</h2>
-                <Button variant="outline" onClick={() => turnOffAllAirCondition(false)}>
+                {/* <Button variant="outline" onClick={() => turnOffAllAirCondition(false)}>
                     <Power className="mr-2 h-4 w-4" /> Apagar todos
-                </Button>
+                </Button> */}
             </div>
 
             <Tabs defaultValue="0" onValueChange={(value) => setArea(Number(value))}>
