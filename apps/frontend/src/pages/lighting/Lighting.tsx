@@ -9,10 +9,13 @@ import { IAreaDevice } from "@/services/area-device/area-device.interface"
 import { getAreaDevices, toggleAllStatusDevices, toggleStatusDevice, toggleStatusDevicesByArea } from "@/services/area-device/area-device.service"
 import { socket, useSocket } from "@/services/socket.io"
 
+import build from '@/assets/build.png';
+import buildLight from '@/assets/buildLight.png';
 
 export const LightingControl = () => {
     // const [lights, setLights] = useState<LightFixture[]>(lightData)
     const [areas, setAreas] = useState<IArea[]>([]);
+    const [lightsOn, setLightOn] = useState<boolean>(false);
     const [areaSelected, setAreaSelected] = useState<IArea | null>(null);
     const [areaDevices, setAreaDevices] = useState<IAreaDevice[]>([]);
 
@@ -25,6 +28,10 @@ export const LightingControl = () => {
             setAreaDevices(data)
         }
     })
+
+    useEffect(() => {
+        setLightOn(areaDevices.filter(item => item.device.type == 'LIGHT').length == areaDevices.filter(item => item.device.type == 'LIGHT').filter(item => item.isOn == true).length)
+    }, [areaDevices])
 
     const getAreaDeviceApi = async () => {
         try {
@@ -87,7 +94,7 @@ export const LightingControl = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-black">Control de Luces</h2>
-                
+
             </div>
 
             <Tabs defaultValue="0" onValueChange={(value) => setArea(Number(value))}>
@@ -152,6 +159,10 @@ export const LightingControl = () => {
                     </TabsContent>
                 ))}
             </Tabs>
+
+            <div className="">
+                <img src={!lightsOn ? build : buildLight} />
+            </div>
         </div>
     )
 }

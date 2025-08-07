@@ -20,7 +20,7 @@ export const menu: IMenu[] = [
         label: 'Inicio',
         icon: FaHome,
         url: '/',
-        permission: ['ADMIN', 'TEACHER'],
+        permission: ['ADMIN'],
         active: false,
         type: 'normal',
         className: 'green-600',

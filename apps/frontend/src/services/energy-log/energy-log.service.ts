@@ -1,5 +1,5 @@
-import { getDataApi, postDataApi } from "../api";
-import { TurnOnDeviceBody, TurnOffDeviceBody } from "./energy-log.interface";
+import { getDataApi, postDataApi, postDataFileApi } from "../api";
+import { ReportBody, TurnOnDeviceBody, TurnOffDeviceBody } from "./energy-log.interface";
 
 const energyLogURL = '/energy-log';
 
@@ -11,6 +11,28 @@ export const getEnergyLog = async () => {
     }
 }
 
+export const getEnergyLogChartDataToday = async () => {
+    try {
+        return await getDataApi(`${energyLogURL}/energy-log/today`);
+    } catch (err) {
+        return err;
+    }
+}
+export const getEnergyLogByDay = async (date: string) => {
+    try {
+        return await getDataApi(`${energyLogURL}/energy-log/day?date=${date}`);
+    } catch (err) {
+        return err;
+    }
+}
+
+export const generateReport = async (data: ReportBody) => {
+    try {
+        return await postDataFileApi(`${energyLogURL}/report`, data);
+    } catch (err) {
+        return err;
+    }
+}
 export const turnOnDevice = async (data: TurnOnDeviceBody) => {
     try {
         return await postDataApi(`${energyLogURL}/turn-on`, data);

@@ -1,19 +1,48 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { es } from "date-fns/locale";
-import { Button } from "@/components/ui/button"
-
-import { Download } from "lucide-react"
-import { format } from "date-fns"
+// import { Button } from "@/components/ui/button"
+// import { Download } from "lucide-react"
 
 import { AreaConsumptionChart } from "../dashboard/components/area-consumption"
 import { EnergyConsumptionChart } from "../energy/Energy"
 import { GenerateReport } from "./GenerateReport"
+import { DashBoardInterface } from "../dashboard/components/dashboard.interface"
+import { generateReport, getEnergyLogByDay } from "@/services/energy-log/energy-log.service"
 
 export function ReportsModule() {
     const [date, setDate] = useState<Date | undefined>(new Date())
-    const [reportType, setReportType] = useState("energy")
-    const [reportPeriod, setReportPeriod] = useState("daily")
+    const [reportType, setReportType] = useState<'LIGHT' | 'AC' | 'ACCESS'>("LIGHT")
+
+    const [dashBoarData, setDashBoarData] = useState<DashBoardInterface>()
+
+    useEffect(() => {
+        getDashBoarDataApi()
+    }, [date])
+
+    const getDashBoarDataApi = async () => {
+        const today = new Date()
+        const dateFilter = date != null ? date : today
+        const response: DashBoardInterface = await getEnergyLogByDay(dateFilter.toString())
+        setDashBoarData(response)
+    }
+
+    const generateReportApi = async () => {
+        const today = new Date()
+        const dateFilter = date != null ? date : today
+        const response = await generateReport({ type: reportType, date: dateFilter })
+        const url = URL.createObjectURL(response)
+        const link = window.document.createElement("a")
+        link.href = url
+        link.download = `Reporte.xlsx`
+        window.document.body.appendChild(link)
+        link.click()
+        window.document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+    }
+    const resetFilters = () => {
+        setReportType('LIGHT')
+        setDate(new Date)
+    }
 
     return (
         <div className="space-y-6">
@@ -24,53 +53,37 @@ export function ReportsModule() {
                 setDate={setDate}
                 reportType={reportType}
                 setReportType={setReportType}
-                reportPeriod={reportPeriod}
-                setReportPeriod={setReportPeriod}
+                onReset={resetFilters}
+                onSubmit={generateReportApi}
             />
 
             <Card>
                 <CardHeader>
                     <div className="flex justify-between items-center">
                         <CardTitle>
-                            {reportType === "energy" && "Reporte de consumo electrico"}
-                            {reportType === "temperature" && "Temperature Report"}
-                            {reportType === "access" && "Access Control Report"}
+                            {reportType === "LIGHT" && "Reporte de consumo electrico"}
+                            {reportType === "AC" && "Temperature Report"}
+                            {reportType === "ACCESS" && "Access Control Report"}
                         </CardTitle>
-                        <Button variant="outline" size="sm">
+                        {/* <Button variant="outline" size="sm">
                             <Download className="mr-2 h-4 w-4" />
                             Exportar
-                        </Button>
+                        </Button> */}
                     </div>
                     <CardDescription>
-                        {reportPeriod === "daily" && "Reporte diario de " + (date ? format(date, "PPP", { locale: es }) : "today")}
-                        {reportPeriod === "weekly" &&
-                            "Weekly report for the week of " + (date ? format(date, "PPP") : "this week")}
-                        {reportPeriod === "monthly" &&
-                            "Monthly report for " + (date ? format(date, "MMMM yyyy") : "this month")}
+
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-8">
                         <div className="h-[300px]">
-                            {reportType === "energy" && <EnergyConsumptionChart />}
-                            {reportType === "temperature" && <AreaConsumptionChart />}
-                            {reportType === "access" && (
+                            {reportType === "LIGHT" && dashBoarData && <EnergyConsumptionChart data={dashBoarData.chartDataEnergy} />}
+                            {reportType === "AC" && dashBoarData && <AreaConsumptionChart data={dashBoarData.chartDataArea} />}
+                            {reportType === "ACCESS" && (
                                 <div className="flex items-center justify-center h-full text-muted-foreground">
                                     Access report visualization
                                 </div>
                             )}
-                        </div>
-
-                        <div className="border rounded-lg p-4">
-                            <h3 className="font-medium mb-2">Resumen</h3>
-                            <ul className="space-y-1 text-sm">
-                                <li>Total consumo: 142.8 kWh</li>
-                                <li>Peak usage time: 14:00 (140 kWh)</li>
-                                <li>Lowest usage time: 04:00 (20 kWh)</li>
-                                <li>Average temperature: 22.5°C</li>
-                                <li>Total entries: 5</li>
-                                <li>Total exits: 5</li>
-                            </ul>
                         </div>
                     </div>
                 </CardContent>

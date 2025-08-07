@@ -5,9 +5,9 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { LogIn, LogOut } from "lucide-react"
 import { useEffect, useState } from "react"
 import { getAccessLog } from "@/services/accessControl/access-control.service"
-import { IAccessLog } from "@/services/accessControl/access-control.interface"
+import { GroupAccessLog, IAccessLog } from "@/services/accessControl/access-control.interface"
 import { IArea } from "@/services/area/area.interface"
-import { Role } from "@/services/user/user.interface"
+import { IUser, Role } from "@/services/user/user.interface"
 import { formatDateTime } from "@/lib/formatters"
 // import { Button } from "@/components/ui/button"
 import { useSocket } from "@/services/socket.io"
@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input"
 
 export function AccessControl() {
     const [areaSelected, setAreaSelected] = useState<IArea | null>(null);
-    const [accessEvents, setAccessEvents] = useState<IAccessLog[]>([])
+    const [accessEvents, setAccessEvents] = useState<GroupAccessLog>({ accessLog: [], allAccessLog: [] })
     const [areas, setAreas] = useState<IArea[]>([]);
 
     useEffect(() => {
@@ -31,8 +31,13 @@ export function AccessControl() {
     const getAccessControlApi = async () => {
         try {
             const response: IAccessLog[] = await getAccessLog();
-            setAccessEvents(response);
-            const getAreas = response.map(item => item.area);
+            const userInfo: IUser = JSON.parse(localStorage.getItem('token') as string)
+            const parseResponse = response.filter(item => item.userId == userInfo.id)
+
+            const setDataAccess = userInfo.role === 'TEACHER' ? parseResponse : response
+
+            setAccessEvents({ accessLog: setDataAccess, allAccessLog: setDataAccess });
+            const getAreas = setDataAccess.map(item => item.area);
             const areasParse = getAreas.filter((o, index, arr) => arr.findIndex(item => JSON.stringify(item) === JSON.stringify(o)) === index);
             const addAreas: IArea[] = [{ id: 0, name: 'Todas' }, ...areasParse];
             setAreas(addAreas)
@@ -59,17 +64,14 @@ export function AccessControl() {
     }
 
     const filterUser = (filter: string) => {
-        // const normalize = (str: string) => str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+        const normalize = (str: string) => str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 
-        console.log(filter);
-
-        // setUsers(prev => ({
-        //     ...prev,
-        //     users: prev.allUsers.filter(item =>
-        //         normalize(item.fullName).includes(normalize(filter)) ||
-        //         normalize(item.email).includes(normalize(filter))
-        //     )
-        // }))
+        setAccessEvents(prev => ({
+            ...prev,
+            accessLog: prev.allAccessLog.filter(item =>
+                normalize(item.user.fullName).includes(normalize(filter))
+            )
+        }))
     }
 
 
@@ -81,17 +83,19 @@ export function AccessControl() {
             </div>
 
             <Tabs defaultValue="0" onValueChange={(value) => setArea(Number(value))}>
-                <TabsList className="mb-4">
-                    {areas.map((area) => (
-                        <TabsTrigger className="cursor-pointer" key={area.id} value={area.id.toString()}>
-                            {area.name}
-                        </TabsTrigger>
-                    ))}
-                </TabsList>
+                <div className="flex items-center justify-between">
+                    <TabsList className="mb-4">
+                        {areas.map((area) => (
+                            <TabsTrigger className="cursor-pointer" key={area.id} value={area.id.toString()}>
+                                {area.name}
+                            </TabsTrigger>
+                        ))}
+                    </TabsList>
 
-                <div className="grid gap-2">
-                    <Label>Buscar usuario</Label>
-                    <Input type="search" className="w-72" placeholder={`Buscar  usuario`} onChange={(e) => filterUser(e.target.value)} />
+                    <div className="grid gap-2">
+                        <Label>Buscar usuario</Label>
+                        <Input type="search" className="w-72 bg-white" placeholder={`Buscar  usuario`} onChange={(e) => filterUser(e.target.value)} />
+                    </div>
                 </div>
                 {areas.map((area) => (
                     <TabsContent key={area.id} value={area.id.toString()}>
@@ -104,7 +108,7 @@ export function AccessControl() {
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-4 h-80 overflow-y-auto">
-                                    {accessEvents
+                                    {accessEvents.accessLog
                                         .filter((event) => !areaSelected || event.area.id === area.id)
                                         .map((event) => (
                                             <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg">

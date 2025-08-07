@@ -14,8 +14,6 @@ import { ReportModule } from './report/report.module';
 import { PrismaService } from './prisma/prisma.service';
 import { MainLoadModule } from './main-load/main-load.module';
 import { WebsocketModule } from './websocket/websocket.module';
-import { FingerprintModule } from './fingerprint/fingerprint.module';
-import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -32,8 +30,6 @@ import { HttpModule } from '@nestjs/axios';
     ReportModule,
     MainLoadModule,
     WebsocketModule,
-    FingerprintModule,
-    HttpModule
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

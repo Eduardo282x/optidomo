@@ -1,6 +1,6 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
 
-const data = [
+export const dataBase = [
     { time: "00:00", energy: 40 },
     { time: "02:00", energy: 30 },
     { time: "04:00", energy: 20 },
@@ -15,7 +15,14 @@ const data = [
     { time: "22:00", energy: 50 },
 ]
 
-export const EnergyConsumptionChart = () => {
+interface EnergyConsumptionChartProps {
+    data: {
+        time: string;
+        energy: number;
+    }[]
+}
+
+export const EnergyConsumptionChart = ({ data }: EnergyConsumptionChartProps) => {
     return (
         <ResponsiveContainer width="100%" height="100%">
             <LineChart

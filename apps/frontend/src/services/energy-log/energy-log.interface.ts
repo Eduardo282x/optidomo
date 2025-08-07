@@ -1,6 +1,11 @@
 import { IArea } from "../area/area.interface";
 import { IDevice } from "../device/device.interface";
 
+export interface ReportBody {
+    type: 'LIGHT' | 'AC' | 'ACCESS';
+    date: Date;
+}
+
 export interface TurnOnDeviceBody {
     deviceId: number;
     areaId: number;

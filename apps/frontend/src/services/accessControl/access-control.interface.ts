@@ -1,6 +1,11 @@
 import { IArea } from "../area/area.interface";
 import { IUser } from "../user/user.interface";
 
+
+export interface GroupAccessLog {
+    allAccessLog: IAccessLog[]
+    accessLog: IAccessLog[]
+}
 export interface IAccessLog {
     id: number;
     areaId: number;

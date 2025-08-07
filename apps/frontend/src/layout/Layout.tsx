@@ -12,9 +12,6 @@ export const Layout = () => {
     const navigate = useNavigate();
     const { isLoading } = useApiLoading();
 
-    useEffect(() => {console.log(isLoading);
-    },[isLoading])
-
     useEffect(() => {
         const getToken = localStorage.getItem('token');
         if (!getToken) {

@@ -10,10 +10,17 @@ import { getAreaDevices, toggleAllStatusDevices, toggleStatusDevice, toggleStatu
 import { IArea } from "@/services/area/area.interface"
 import { socket, useSocket } from "@/services/socket.io"
 
+import build from '@/assets/build.png';
+import buildAC from '@/assets/buildCold.png';
 export const TemperatureControl = () => {
     const [areas, setAreas] = useState<IArea[]>([]);
     const [areaSelected, setAreaSelected] = useState<IArea | null>(null);
     const [areaDevices, setAreaDevices] = useState<IAreaDevice[]>([]);
+    const [acOn, setAcOn] = useState<boolean>(false);
+
+    useEffect(() => {
+        setAcOn(areaDevices.filter(item => item.device.type == 'AC').length == areaDevices.filter(item => item.device.type == 'AC').filter(item => item.isOn == true).length)
+    }, [areaDevices])
 
     useEffect(() => {
         getAreaDeviceApi();
@@ -183,6 +190,11 @@ export const TemperatureControl = () => {
                     </TabsContent>
                 ))}
             </Tabs>
+
+
+            <div className="">
+                <img src={!acOn ? build : buildAC} />
+            </div>
         </div>
     )
 }

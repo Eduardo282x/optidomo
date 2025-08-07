@@ -1,10 +1,25 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {  Lightbulb, Thermometer, Users } from "lucide-react"
+import { Lightbulb, Thermometer, Users } from "lucide-react"
 import { AreaConsumptionChart } from "./components/area-consumption"
 import { EnergyConsumptionChart } from "../energy/Energy"
+import { getEnergyLogChartDataToday } from "@/services/energy-log/energy-log.service"
+import { useEffect, useState } from "react"
+import { DashBoardInterface } from "./components/dashboard.interface"
+import { formatOnlyNumberWithDots } from "@/lib/formatters"
 
 export const DashboardView = () => {
+    const [dashBoarData, setDashBoarData] = useState<DashBoardInterface>()
+    
+    useEffect(() => {
+        getDashBoarDataApi()
+    }, [])
+
+    const getDashBoarDataApi = async () => {
+        const response: DashBoardInterface = await getEnergyLogChartDataToday()
+        setDashBoarData(response)
+    }
+
     return (
         <div className="space-y-6 w-full">
             <h2 className="text-2xl font-bold text-black">Inicio</h2>
@@ -26,8 +41,8 @@ export const DashboardView = () => {
                         </svg>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">142.8 kWh</div>
-                        <p className="text-xs text-muted-foreground">-2% desde ayer</p>
+                        <div className="text-2xl font-bold">{formatOnlyNumberWithDots(Number(dashBoarData?.totalConsumption))} kWh</div>
+                        {/* <p className="text-xs text-muted-foreground">-2% desde ayer</p> */}
                     </CardContent>
                 </Card>
                 <Card className="border-yellow-200">
@@ -36,8 +51,8 @@ export const DashboardView = () => {
                         <Lightbulb className="h-4 w-4 text-yellow-500" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">48.2 kWh</div>
-                        <p className="text-xs text-muted-foreground">+1.2% desde ayer</p>
+                        <div className="text-2xl font-bold">{formatOnlyNumberWithDots(Number(dashBoarData?.totalConsumptionLight))} kWh</div>
+                        {/* <p className="text-xs text-muted-foreground">+1.2% desde ayer</p> */}
                     </CardContent>
                 </Card>
                 <Card className="border-orange-200">
@@ -46,8 +61,8 @@ export const DashboardView = () => {
                         <Thermometer className="h-4 w-4 text-orange-500" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">94.6 kWh</div>
-                        <p className="text-xs text-muted-foreground">-4% desde ayer</p>
+                        <div className="text-2xl font-bold">{formatOnlyNumberWithDots(Number(dashBoarData?.totalConsumptionAC))} kWh</div>
+                        {/* <p className="text-xs text-muted-foreground">-4% desde ayer</p> */}
                     </CardContent>
                 </Card>
                 <Card className="border-blue-200">
@@ -62,12 +77,6 @@ export const DashboardView = () => {
                 </Card>
             </div>
 
-            {/* <Alert variant="destructive" className="bg-red-50 border-red-200">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Alert</AlertTitle>
-                <AlertDescription>Salon 2 air conditioning unit has exceeded average consumption by 15%.</AlertDescription>
-            </Alert> */}
-
             <Tabs defaultValue="consumption" className="space-y-4">
                 <TabsList>
                     <TabsTrigger value="consumption">Consumo energético</TabsTrigger>
@@ -80,7 +89,9 @@ export const DashboardView = () => {
                             <CardDescription>Energía usada en las ultimas 24 horas.</CardDescription>
                         </CardHeader>
                         <CardContent className="h-[300px]">
-                            <EnergyConsumptionChart />
+                            {dashBoarData && (
+                                <EnergyConsumptionChart data={dashBoarData.chartDataEnergy} />
+                            )}
                         </CardContent>
                     </Card>
                 </TabsContent>
@@ -91,7 +102,9 @@ export const DashboardView = () => {
                             <CardDescription>Consumo de energía actual por area</CardDescription>
                         </CardHeader>
                         <CardContent className="h-[300px]">
-                            <AreaConsumptionChart />
+                            {dashBoarData && (
+                                <AreaConsumptionChart data={dashBoarData.chartDataArea}/>
+                            )}
                         </CardContent>
                     </Card>
                 </TabsContent>

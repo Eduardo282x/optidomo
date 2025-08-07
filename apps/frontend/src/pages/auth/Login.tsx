@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { loginAPI } from "@/services/auth/auth.service"
+import { IUser } from "@/services/user/user.interface"
 import { Leaf, Mail, EyeOff, Eye, Loader2, Lock, Smartphone } from "lucide-react"
 import { useState } from "react"
 import { useForm } from "react-hook-form";
@@ -30,9 +31,14 @@ export const Login = () => {
         try {
             const response = await loginAPI(data);
             if (response && response.success) {
-                localStorage.setItem('token', JSON.stringify(response.data))
+                const user: IUser = response.data
+                localStorage.setItem('token', JSON.stringify(user))
                 setTimeout(() => {
-                    navigate('/')
+                    if(user.role =='TEACHER'){
+                        navigate('/acceso')
+                    }else {
+                        navigate('/')
+                    }
                 }, 1500);
             }
         } catch (err) {
