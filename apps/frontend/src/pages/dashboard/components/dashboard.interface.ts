@@ -9,5 +9,15 @@ export interface DashBoardInterface {
     chartDataArea: {
         area: string;
         energy: number;
-    }[]
+    }[],
+    access: IAccessLog[]
+}
+
+
+export interface IAccessLog {
+    user: string;
+    area: string;
+    type: string;
+    time: string;
+    date: Date;
 }

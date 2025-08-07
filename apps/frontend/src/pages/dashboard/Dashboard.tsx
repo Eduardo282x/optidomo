@@ -7,13 +7,26 @@ import { getEnergyLogChartDataToday } from "@/services/energy-log/energy-log.ser
 import { useEffect, useState } from "react"
 import { DashBoardInterface } from "./components/dashboard.interface"
 import { formatOnlyNumberWithDots } from "@/lib/formatters"
+import { useSocket } from "@/services/socket.io"
+import { IAreaDevice } from "@/services/area-device/area-device.interface"
 
 export const DashboardView = () => {
     const [dashBoarData, setDashBoarData] = useState<DashBoardInterface>()
-    
+
     useEffect(() => {
         getDashBoarDataApi()
     }, [])
+
+    useSocket('areaDevicesUpdate', (data: IAreaDevice[]) => {
+        if (data && data.length > 0) {
+            getDashBoarDataApi()
+        }
+    })
+
+    useSocket('accessLogUpdate', (data: string) => {
+        console.log(data);
+        getDashBoarDataApi();
+    })
 
     const getDashBoarDataApi = async () => {
         const response: DashBoardInterface = await getEnergyLogChartDataToday()
@@ -103,7 +116,7 @@ export const DashboardView = () => {
                         </CardHeader>
                         <CardContent className="h-[300px]">
                             {dashBoarData && (
-                                <AreaConsumptionChart data={dashBoarData.chartDataArea}/>
+                                <AreaConsumptionChart data={dashBoarData.chartDataArea} />
                             )}
                         </CardContent>
                     </Card>

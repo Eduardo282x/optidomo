@@ -8,6 +8,7 @@ import { EnergyConsumptionChart } from "../energy/Energy"
 import { GenerateReport } from "./GenerateReport"
 import { DashBoardInterface } from "../dashboard/components/dashboard.interface"
 import { generateReport, getEnergyLogByDay } from "@/services/energy-log/energy-log.service"
+// import { AccessChart } from "../dashboard/components/access-chart"
 
 export function ReportsModule() {
     const [date, setDate] = useState<Date | undefined>(new Date())
@@ -79,9 +80,9 @@ export function ReportsModule() {
                         <div className="h-[300px]">
                             {reportType === "LIGHT" && dashBoarData && <EnergyConsumptionChart data={dashBoarData.chartDataEnergy} />}
                             {reportType === "AC" && dashBoarData && <AreaConsumptionChart data={dashBoarData.chartDataArea} />}
-                            {reportType === "ACCESS" && (
+                            {reportType === "ACCESS" && dashBoarData && (
                                 <div className="flex items-center justify-center h-full text-muted-foreground">
-                                    Access report visualization
+                                    Solo disponible en excel
                                 </div>
                             )}
                         </div>

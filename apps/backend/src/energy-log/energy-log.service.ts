@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DeviceType } from '@prisma/client';
+import { AccessType, DeviceType, Role } from '@prisma/client';
 import { badResponse, baseResponse } from 'src/base/base.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { EnergyLogFilters, ApiResponse, HourlyEnergyData, DailyEnergyData, AreaEnergyData, DeviceTypeEnergyData, DashboardStats } from './energy-log.dto';
@@ -102,6 +102,7 @@ export class EnergyLogService {
     async getEnergyLogChartDataToday() {
         const today = new Date()
         const logs = await this.getEnergyLogByRange(today, today);
+        const access = await this.getCurrentPeopleInsideReport(today);
         if (!Array.isArray(logs)) return logs;
 
         const grouped: Record<string, number> = {};
@@ -121,12 +122,14 @@ export class EnergyLogService {
             totalConsumptionAC: logs.filter(item => item.areaDevice.device.type == 'AC').reduce((acc, item) => acc + item.totalWh, 0),
             totalConsumption: logs.reduce((acc, item) => acc + item.totalWh, 0),
             chartDataEnergy: chartData,
-            chartDataArea: energyLogArea
+            chartDataArea: energyLogArea,
+            access: access
         };
     }
 
     async getEnergyLogChartDate(date: Date) {
         const logs = await this.getEnergyLogByRange(date, date);
+        const access = await this.getAccessControlReport(date);
         if (!Array.isArray(logs)) return logs;
 
         const grouped: Record<string, number> = {};
@@ -146,7 +149,8 @@ export class EnergyLogService {
             totalConsumptionAC: logs.filter(item => item.areaDevice.device.type == 'AC').reduce((acc, item) => acc + item.totalWh, 0),
             totalConsumption: logs.reduce((acc, item) => acc + item.totalWh, 0),
             chartDataEnergy: chartData,
-            chartDataArea: energyLogArea
+            chartDataArea: energyLogArea,
+            access: access
         };
     }
 
@@ -709,14 +713,24 @@ export class EnergyLogService {
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet('Reporte de Consumo');
 
-        // Encabezado común
-        sheet.columns = [
+        const columnsEnergy = [
             { header: 'Área', key: 'area', width: 25 },
             { header: 'Valor', key: 'value', width: 15 },
             { header: 'Unidad', key: 'unit', width: 10 },
             { header: 'Hora', key: 'time', width: 10 },
             { header: 'Fecha', key: 'date', width: 15 },
         ];
+
+        const columnsAccess = [
+            { header: 'Usuario', key: 'user', width: 10 },
+            { header: 'Área', key: 'area', width: 25 },
+            { header: 'Tipo', key: 'type', width: 15 },
+            { header: 'Hora', key: 'time', width: 10 },
+            { header: 'Fecha', key: 'date', width: 15 },
+        ]
+
+        // Encabezado común
+        sheet.columns = type == 'ACCESS' ? columnsAccess : columnsEnergy
 
         // Aquí se define qué datos usar según el tipo
         let data: Array<any> = [];
@@ -728,11 +742,16 @@ export class EnergyLogService {
 
         if (type === 'LIGHT' || type == 'AC') {
             data = await this.getEnergyLogForExcel(type, parsedDate, endDate);
-        } 
+        }
 
+        if (type === 'ACCESS') {
+            data = await this.getAccessControlReport(date)
+        }
 
         for (const entry of data) {
             sheet.addRow({
+                user: entry.user,
+                type: entry.type,
                 date: entry.date,
                 time: entry.time,
                 area: entry.area,
@@ -771,6 +790,100 @@ export class EnergyLogService {
             value: log.totalWh,
             unit: 'Wh',
         }));
+    }
+
+
+    getRoleName = (role: Role) => {
+        switch (role) {
+            case "ADMIN":
+                return "Administrador"
+            case "TEACHER":
+                return "Profesor"
+            default:
+                return "Estudiante"
+        }
+    }
+
+    async getAccessControlReport(date: Date) {
+        const start = new Date(date);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(date);
+        end.setHours(23, 59, 59, 999);
+
+        const logs = await this.prisma.accessLog.findMany({
+            where: {
+                timestamp: {
+                    gte: start,
+                    lte: end,
+                },
+            },
+            include: {
+                user: true,
+                area: true,
+            },
+            orderBy: {
+                timestamp: 'asc',
+            },
+        });
+
+        return logs.map(log => ({
+            user: `${log.user.fullName} ${this.getRoleName(log.user.role)}`,
+            area: log.area.name,
+            type: log.type == 'ENTRY' ? 'Entrada' : 'Salida',
+            time: log.timestamp.toISOString().slice(11, 16), // HH:MM
+            date: log.timestamp.toISOString().slice(0, 10), // YYYY-MM-DD
+        }));
+    }
+
+    async getCurrentPeopleInsideReport(date: Date) {
+        const start = new Date(date);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(date);
+        end.setHours(23, 59, 59, 999);
+
+        const logs = await this.prisma.accessLog.findMany({
+            where: {
+                timestamp: {
+                    gte: start,
+                    lte: end,
+                },
+            },
+            include: {
+                user: true,
+            },
+            orderBy: {
+                timestamp: 'asc',
+            },
+        });
+
+        const userLogMap = new Map<number, AccessType[]>();
+
+        for (const log of logs) {
+            if (!userLogMap.has(log.userId)) {
+                userLogMap.set(log.userId, []);
+            }
+            userLogMap.get(log.userId)?.push(log.type);
+        }
+
+        const usersInside: { userId: number; name: string }[] = [];
+
+        userLogMap.forEach((actions, userId) => {
+            const lastAction = actions[actions.length - 1];
+            if (lastAction === 'ENTRY') {
+                const user = logs.find(l => l.userId === userId)?.user;
+                if (user) {
+                    usersInside.push({
+                        userId,
+                        name: `${user.fullName} ${this.getRoleName(user.role)}`,
+                    });
+                }
+            }
+        });
+
+        return {
+            total: usersInside.length,
+            users: usersInside,
+        };
     }
 
 }
