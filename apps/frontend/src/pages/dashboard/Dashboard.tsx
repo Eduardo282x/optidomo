@@ -84,7 +84,7 @@ export const DashboardView = () => {
                         <Users className="h-4 w-4 text-blue-500" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">42 personas</div>
+                        <div className="text-2xl font-bold">{dashBoarData && dashBoarData.access.total} personas</div>
                         <p className="text-xs text-muted-foreground">Actualmente en el edificio</p>
                     </CardContent>
                 </Card>

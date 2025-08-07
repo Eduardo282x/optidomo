@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface DashBoardInterface {
     totalConsumptionLight: number;
     totalConsumptionAC: number;
@@ -10,7 +11,7 @@ export interface DashBoardInterface {
         area: string;
         energy: number;
     }[],
-    access: IAccessLog[]
+    access: any | IAccessLog[]
 }
 
 
